@@ -1,0 +1,27 @@
+.buttons,
+    .axes {
+      padding: 1em;
+    }
+
+    /*meter*/
+    .axis {
+      min-width: 200px;
+      margin: 1em;
+    }
+
+    .button {
+      padding: 1em;
+      border-radius: 20px;
+      border: 1px solid black;
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAAxJREFUCNdjYPjPAAACAgEAqiqeJwAAAABJRU5ErkJggg==);
+      background-size: 0% 0%;
+      background-position: 50% 50%;
+      background-repeat: no-repeat;
+    }
+
+    .pressed {
+      border: 1px solid red;
+    }
+    .start {
+        color: aliceblue;
+    }

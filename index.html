@@ -1,29 +1,82 @@
 <html>
-    <head>
-        <script src="gamepadtest.js"></script>
-        <style>
-            .buttons, .axes {
-              padding: 1em;
-            }
-            /*meter*/.axis {
-              min-width: 200px;
-              margin: 1em;
-            }
-            .button {
-              padding: 1em;
-              border-radius: 20px;
-              border: 1px solid black;
-              background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAAxJREFUCNdjYPjPAAACAgEAqiqeJwAAAABJRU5ErkJggg==);
-              background-size: 0% 0%;
-              background-position: 50% 50%;
-              background-repeat: no-repeat;
-            }
-            .pressed {
-              border: 1px solid red;
-            }
-            </style>
-            </head>
-            <body>
-            <h2 id="start">Press a button on your controller to start</h2>
-            </body>
-            </html>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<head rel="stylesheet" href="index.css">
+  <script src="gamepadtest.js"></script>
+  <style>
+    .buttons,
+    .axes {
+      padding: 1em;
+    }
+
+    /*meter*/
+    .axis {
+      min-width: 200px;
+      margin: 1em;
+    }
+
+    .button {
+      padding: 1em;
+      border-radius: 20px;
+      border: 1px solid black;
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAAxJREFUCNdjYPjPAAACAgEAqiqeJwAAAABJRU5ErkJggg==);
+      background-size: 0% 0%;
+      background-position: 50% 50%;
+      background-repeat: no-repeat;
+    }
+
+    .pressed {
+      border: 1px solid red;
+    }
+  </style>
+</head>
+
+<body>
+  <h2 id="start">Press a button on your controller to start</h2>
+  <div>
+    <h4>Movement Input Notation</h4>
+    <select name="noteEnum" id="mvmtIn">
+      <option value="MovementNotationType.Numeric">Numeric</option>
+      <option value="MovementNotationType.Directional">Directional</option>
+      <option value="MovementNotationType.TruncatedDirectional">TruncatedDirectional</option>
+      <option value="MovementNotationType.Motional">Motional</option>
+      <option value="MovementNotationType.TruncatedMotional">TruncatedMotional</option>
+    </select>
+    <h4>Movement Output Notation</h4>
+    <select name="noteEnum" id="mvmtOut">
+      <option value="MovementNotationType.Numeric">Numeric</option>
+      <option value="MovementNotationType.Directional">Directional</option>
+      <option value="MovementNotationType.TruncatedDirectional">TruncatedDirectional</option>
+      <option value="MovementNotationType.Motional">Motional</option>
+      <option value="MovementNotationType.TruncatedMotional">TruncatedMotional</option>
+    </select>
+    
+  </div>
+  <div>
+    <h4>Button Input Notation</h4>
+    <select name="noteEnum" id="btnIn">
+      <option value="ButtonNotationType.Numeric">Numeric</option>
+      <option value="ButtonNotationType.StreetFighter">StreetFighter</option>
+      <option value="ButtonNotationType.SNK">SNK</option>
+      <option value="ButtonNotationType.Netherrealm">Netherrealm</option>
+      <option value="ButtonNotationType.Tekken">Tekken</option>
+      <option value="ButtonNotationType.SoulCalibur">SoulCalibur</option>
+    </select>
+    <h4>Button Output Notation</h4>
+    <select name="noteEnum" id="btnOut">
+      <option value="ButtonNotationType.Numeric">Numeric</option>
+      <option value="ButtonNotationType.StreetFighter">StreetFighter</option>
+      <option value="ButtonNotationType.SNK">SNK</option>
+      <option value="ButtonNotationType.Netherrealm">Netherrealm</option>
+      <option value="ButtonNotationType.Tekken">Tekken</option>
+      <option value="ButtonNotationType.SoulCalibur">SoulCalibur</option>
+    </select>
+  </div>
+  <div>
+  <textarea id="convInpStr">236HP</textarea>
+    <button id="convBtn">CONVERT</button>
+    <h3 id="outStrh3"></h3>
+  </div>
+  <script src="inputconvertertest.js"></script>
+</body>
+
+</html>

@@ -16,17 +16,22 @@ function addgamepad(gamepad) {
   d.appendChild(t);
   var b = document.createElement("div");
   b.className = "buttons";
-  for (var i=0; i<gamepad.buttons.length; i++) {
+
+  //Create Button Icons
+  for (var i = 0; i < gamepad.buttons.length; i++) {
     var e = document.createElement("span");
     e.className = "button";
     //e.id = "b" + i;
-    e.innerHTML = i;
+    e.innerHTML = nameButtons(i);
+    // e.innerHTML = i;
     b.appendChild(e);
   }
   d.appendChild(b);
+
+  // Create Axis Meters
   var a = document.createElement("div");
   a.className = "axes";
-  for (i=0; i<gamepad.axes.length; i++) {
+  for (i = 0; i < gamepad.axes.length; i++) {
     e = document.createElement("meter");
     e.className = "axis";
     //e.id = "a" + i;
@@ -58,11 +63,11 @@ function updateStatus() {
     var controller = controllers[j];
     var d = document.getElementById("controller" + j);
     var buttons = d.getElementsByClassName("button");
-    for (var i=0; i<controller.buttons.length; i++) {
+    for (var i = 0; i < controller.buttons.length; i++) {
       var b = buttons[i];
       var val = controller.buttons[i];
       var pressed = val == 1.0;
-      if (typeof(val) == "object") {
+      if (typeof (val) == "object") {
         pressed = val.pressed;
         val = val.value;
       }
@@ -76,7 +81,7 @@ function updateStatus() {
     }
 
     var axes = d.getElementsByClassName("axis");
-    for (var i=0; i<controller.axes.length; i++) {
+    for (var i = 0; i < controller.axes.length; i++) {
       var a = axes[i];
       a.innerHTML = i + ": " + controller.axes[i].toFixed(4);
       a.setAttribute("value", controller.axes[i]);
@@ -95,6 +100,25 @@ function scangamepads() {
         controllers[gamepads[i].index] = gamepads[i];
       }
     }
+  }
+}
+//Names the button with the proper designation based on notation selection
+function nameButtons(i) {
+  switch (window.btnNoteTypeIn) {
+
+    case ButtonNotationType.StreetFighter:
+      switch (i) {
+        case 0: return "LK";
+        case 1: return "MK";
+        case 2: return "LP";
+        case 3: return "MP";
+        case 4: return "HP";
+        case 5: return "HK";
+        default:
+          return i;
+      }
+    default:
+      return i;
   }
 }
 
