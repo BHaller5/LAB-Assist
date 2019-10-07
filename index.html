@@ -1,8 +1,9 @@
 <html>
-  <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-<head rel="stylesheet" href="index.css">
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+
+<head>
   <script src="gamepadtest.js"></script>
-  <style>
+  <!-- <style>
     .buttons,
     .axes {
       padding: 1em;
@@ -27,54 +28,69 @@
     .pressed {
       border: 1px solid red;
     }
-  </style>
+  </style> -->
 </head>
 
 <body>
+  <link rel="stylesheet" href="index.css">
   <h2 id="start">Press a button on your controller to start</h2>
-  <div>
-    <h4>Movement Input Notation</h4>
-    <select name="noteEnum" id="mvmtIn">
-      <option value="MovementNotationType.Numeric">Numeric</option>
-      <option value="MovementNotationType.Directional">Directional</option>
-      <option value="MovementNotationType.TruncatedDirectional">TruncatedDirectional</option>
-      <option value="MovementNotationType.Motional">Motional</option>
-      <option value="MovementNotationType.TruncatedMotional">TruncatedMotional</option>
-    </select>
-    <h4>Movement Output Notation</h4>
-    <select name="noteEnum" id="mvmtOut">
-      <option value="MovementNotationType.Numeric">Numeric</option>
-      <option value="MovementNotationType.Directional">Directional</option>
-      <option value="MovementNotationType.TruncatedDirectional">TruncatedDirectional</option>
-      <option value="MovementNotationType.Motional">Motional</option>
-      <option value="MovementNotationType.TruncatedMotional">TruncatedMotional</option>
-    </select>
-    
+  <div id="noteTypesCont"> 
+    <div id="noteDiv">Notation Settings
+      <h4 class="noteHeader">Movement Input Notation</h4>
+      <select name="noteEnum" id="mvmtIn">
+        <option value=1>Numeric</option>
+        <option value=2>Directional</option>
+        <option value=3>TruncatedDirectional</option>
+        <option value=4>Motional</option>
+        <option value=5>TruncatedMotional</option>
+      </select>
+      <h4 class="noteHeader">Movement Output Notation</h4>
+      <select name="noteEnum" id="mvmtOut">
+        <option value=1>Numeric</option>
+        <option value=2>Directional</option>
+        <option value=3>TruncatedDirectional</option>
+        <option value=4>Motional</option>
+        <option value=5>TruncatedMotional</option>
+      </select>
+
+    </div>
+    <div id="noteDiv">
+      <h4 class="noteHeader">Button Input Notation</h4>
+      <select name="noteEnum" id="btnIn">
+        <option value=1>Numeric</option>
+        <option value=2>StreetFighter</option>
+        <option value=3>SNK</option>
+        <option value=4>Netherrealm</option>
+        <option value=5>Tekken</option>
+        <option value=6>SoulCalibur</option>
+      </select>
+      <h4 class="noteHeader">Button Output Notation</h4>
+      <select name="noteEnum" id="btnOut">
+        <option value=1>Numeric</option>
+        <option value=2>StreetFighter</option>
+        <option value=3>SNK</option>
+        <option value=4>Netherrealm</option>
+        <option value=5>Tekken</option>
+        <option value=6>SoulCalibur</option>
+      </select>
+    </div>
   </div>
-  <div>
-    <h4>Button Input Notation</h4>
-    <select name="noteEnum" id="btnIn">
-      <option value="ButtonNotationType.Numeric">Numeric</option>
-      <option value="ButtonNotationType.StreetFighter">StreetFighter</option>
-      <option value="ButtonNotationType.SNK">SNK</option>
-      <option value="ButtonNotationType.Netherrealm">Netherrealm</option>
-      <option value="ButtonNotationType.Tekken">Tekken</option>
-      <option value="ButtonNotationType.SoulCalibur">SoulCalibur</option>
-    </select>
-    <h4>Button Output Notation</h4>
-    <select name="noteEnum" id="btnOut">
-      <option value="ButtonNotationType.Numeric">Numeric</option>
-      <option value="ButtonNotationType.StreetFighter">StreetFighter</option>
-      <option value="ButtonNotationType.SNK">SNK</option>
-      <option value="ButtonNotationType.Netherrealm">Netherrealm</option>
-      <option value="ButtonNotationType.Tekken">Tekken</option>
-      <option value="ButtonNotationType.SoulCalibur">SoulCalibur</option>
-    </select>
-  </div>
-  <div>
-  <textarea id="convInpStr">236HP</textarea>
+  <br>
+  <div id="convDiv">
+    <textarea id="convInpStr">236HP</textarea>
     <button id="convBtn">CONVERT</button>
     <h3 id="outStrh3"></h3>
+    <div id="dispNoteDiv">
+      <h4 class="noteHeader">Button Display Notation</h4>
+      <select name="noteEnum" id="dispBtn">
+        <option value=1>Numeric</option>
+        <option value=2>StreetFighter</option>
+        <option value=3>SNK</option>
+        <option value=4>Netherrealm</option>
+        <option value=5>Tekken</option>
+        <option value=6>SoulCalibur</option>
+      </select>
+    </div>
   </div>
   <script src="inputconvertertest.js"></script>
 </body>

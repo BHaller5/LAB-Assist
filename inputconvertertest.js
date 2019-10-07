@@ -11,19 +11,43 @@ var ButtonNotationType = {
     SNK: 3,
     Netherrealm: 4,
     Tekken: 5,
-    SoulCalibur: 6
+    SoulCalibur: 6,
+    GuiltyGear: 7
 };
 
-var btnNoteTypeIn = ButtonNotationType.Numeric;
-var btnNoteTypeOut = ButtonNotationType.Numeric;
-var mvmtNoteTypeIn = MovementNotationType.Numeric;
-var mvmtNoteTypeOut = MovementNotationType.Directional;
+
+var convMvmtNoteTypeIn = MovementNotationType.Numeric;
+var convMvmtNoteTypeOut = MovementNotationType.Directional;
+var convBtnNoteTypeIn = ButtonNotationType.Numeric;
+var convBtnNoteTypeOut = ButtonNotationType.Numeric;
+var dispBtnNoteType = ButtonNotationType.StreetFighter;
 
 outStr = "";
 inStr = "";
 splitChar = ' ';
 
 testInputs = ["236HP", "F D DF + MP", "lp, lp, Forward, lk, hp"];
+
+
+// var ButtonLayout = {
+//     btn0: 0,
+//     btn1: 1,
+//     btn2: 2,
+//     btn3: 3,
+//     btn4: 4,
+//     btn5: 5
+// };
+function ButtonLayout(zero, one, two, three, four, five) {
+    this.btn0 = zero;
+    this.btn1 = one;
+    this.btn2 = two;
+    this.btn3 = three;
+    this.btn4 = four;
+    this.btn5 = five;
+}
+ggBtnLayout = ButtonLayout("P", "K", "S", "HS", "D", "SP");
+currBtnLayout = ButtonLayout(0, 1, 2, 3, 4, 5);
+testBtnLayout = ButtonLayout(2, 4, 0, 5, 3, 1);
 
 var convInpStr = document.getElementById("convInpStr");
 convInpStr.addEventListener("change", changeInput);
@@ -33,18 +57,21 @@ var mvmtInElmt = document.getElementById("mvmtIn");
 var mvmtOutElmt = document.getElementById("mvmtOut");
 var btnInElmt = document.getElementById("btnIn");
 var btnOutElmt = document.getElementById("btnOut");
-mvmtInElmt.addEventListener("change", function () { ChangeEnum(mvmtInElmt, mvmtInElmt.value, mvmtNoteTypeIn); });
-mvmtOutElmt.addEventListener("change", function () { ChangeEnum(mvmtOutElmt, mvmtOutElmt.value, mvmtNoteTypeOut); });
-btnInElmt.addEventListener("change", function () { ChangeEnum(btnInElmt, btnInElmt.value, btnNoteTypeIn); });
-btnOutElmt.addEventListener("change", function () { ChangeEnum(btnOutElmt, btnOutElmt.value, btnNoteTypeOut); });
+var dispBtnElmt = document.getElementById("dispBtn");
+mvmtInElmt.addEventListener("change", function () { convMvmtNoteTypeIn = ChangeEnum(mvmtInElmt, mvmtInElmt.value); });
+mvmtOutElmt.addEventListener("change", function () { convMvmtNoteTypeOut = ChangeEnum(mvmtOutElmt, mvmtOutElmt.value); });
+btnInElmt.addEventListener("change", function () { convBtnNoteTypeIn = ChangeEnum(btnInElmt, btnInElmt.value); });
+btnOutElmt.addEventListener("change", function () { convBtnNoteTypeOut = ChangeEnum(btnOutElmt, btnOutElmt.value); });
+dispBtnElmt.addEventListener("change", function () { dispBtnNoteType = ChangeEnum(dispBtnElmt, dispBtnElmt.value); });
 
 
 function initConverter() {
     changeInput();
-    mvmtInElmt.value = mvmtNoteTypeIn;
-    mvmtOutElmt.value = mvmtNoteTypeOut;
-    btnInElmt.value = btnNoteTypeIn;
-    btnOutElmt.value = btnNoteTypeOut;
+    mvmtInElmt.value = convMvmtNoteTypeIn;
+    mvmtOutElmt.value = convMvmtNoteTypeOut;
+    btnInElmt.value = convBtnNoteTypeIn;
+    btnOutElmt.value = convBtnNoteTypeOut;
+    dispBtnElmt.value = dispBtnNoteType;
 }
 function changeInput() {
     var inStrArea = document.getElementById("convInpStr");
@@ -55,7 +82,7 @@ function convertInput() {
     tempInStr = inStr;
     strTokes = tempInStr.split(splitChar);
     console.log("Token Cnt: " + strTokes.length + " | " + strTokes.toString());
-    if (mvmtNoteTypeIn != mvmtNoteTypeOut) {
+    if (convMvmtNoteTypeIn != convMvmtNoteTypeOut) {
         ProcessInputs(strTokes);
     }
     else
@@ -83,7 +110,7 @@ function ProcessToken(tok) {
     var tok2;
     console.log("   Proccing Token: " + tok);
 
-    switch (mvmtNoteTypeIn) {
+    switch (convMvmtNoteTypeIn) {
         case MovementNotationType.Numeric:
             tok1 = tok.split(/[A-Za-z]/)[0];
             // tok2 = tok.split(/[A-Za-z]/);
@@ -93,7 +120,7 @@ function ProcessToken(tok) {
         case MovementNotationType.TruncatedDirectional:
             break;
     }
-    switch (btnNoteTypeIn) {
+    switch (convBtnNoteTypeIn) {
         case ButtonNotationType.Numeric:
             tok1 = tok.split(/[A-Za-z]/)[0];
             break;
@@ -123,9 +150,16 @@ function ProcessCharacter(ch) {
 }
 
 
-function ChangeEnum(e, v, m_v) {
-    m_v.value = v;
+function ChangeEnum(e, v) {
     e.value = v;
     // console.log("Changed enum " + e.toString() + " to " + v.toString());
-    console.log("Changed enum " + e.toString() + " to " + e.value.toString() + "||" + m_v);
+    console.log("Changed enum " + e.toString() + " to " + e.value.toString());
+    return v;
+}
+function ChangeDisplayEnum(e, v) {
+    e.value = v;
+    for(var cntrllr in window.controllers)
+    {
+
+    }
 }

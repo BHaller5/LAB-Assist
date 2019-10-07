@@ -9,41 +9,31 @@ function connecthandler(e) {
   addgamepad(e.gamepad);
 }
 function addgamepad(gamepad) {
-  controllers[gamepad.index] = gamepad; var d = document.createElement("div");
-  d.setAttribute("id", "controller" + gamepad.index);
-  var t = document.createElement("h1");
-  t.appendChild(document.createTextNode("gamepad: " + gamepad.id));
-  d.appendChild(t);
-  var b = document.createElement("div");
-  b.className = "buttons";
+  controllers[gamepad.index] = gamepad;
+  var div = document.createElement("div");
+  div.setAttribute("id", "controller" + gamepad.index);
+
+  //Create controller id title
+  var title = document.createElement("h1");
+  title.appendChild(document.createTextNode("gamepad: " + gamepad.id));
+  div.appendChild(title);
 
   //Create Button Icons
-  for (var i = 0; i < gamepad.buttons.length; i++) {
-    var e = document.createElement("span");
-    e.className = "button";
-    //e.id = "b" + i;
-    e.innerHTML = nameButtons(i);
-    // e.innerHTML = i;
-    b.appendChild(e);
-  }
-  d.appendChild(b);
+  var btns = document.createElement("div"); btns.className = "buttons";
+  for (var i = 0; i < gamepad.buttons.length; i++) { btns.appendChild(createButtonIcon(i)); }
+  //Append Buttons to div
+  div.appendChild(btns);
 
   // Create Axis Meters
-  var a = document.createElement("div");
-  a.className = "axes";
-  for (i = 0; i < gamepad.axes.length; i++) {
-    e = document.createElement("meter");
-    e.className = "axis";
-    //e.id = "a" + i;
-    e.setAttribute("min", "-1");
-    e.setAttribute("max", "1");
-    e.setAttribute("value", "0");
-    e.innerHTML = i;
-    a.appendChild(e);
-  }
-  d.appendChild(a);
+  var axes = document.createElement("div"); axes.className = "axes";
+  for (i = 0; i < gamepad.axes.length; i++) { axes.appendChild(createAxisMeter(i)); }
+  
+  //Append Meters to div
+  div.appendChild(axes);
+
+  //Hide start message
   document.getElementById("start").style.display = "none";
-  document.body.appendChild(d);
+  document.body.appendChild(div);
   rAF(updateStatus);
 }
 
@@ -59,9 +49,13 @@ function removegamepad(gamepad) {
 
 function updateStatus() {
   scangamepads();
+  /**
+   * Controller Status Loop */
   for (j in controllers) {
     var controller = controllers[j];
     var d = document.getElementById("controller" + j);
+    /**
+     * Button Status Loop */
     var buttons = d.getElementsByClassName("button");
     for (var i = 0; i < controller.buttons.length; i++) {
       var b = buttons[i];
@@ -79,7 +73,8 @@ function updateStatus() {
         b.className = "button";
       }
     }
-
+    /**
+     * Axis Status Loop */
     var axes = d.getElementsByClassName("axis");
     for (var i = 0; i < controller.axes.length; i++) {
       var a = axes[i];
@@ -102,9 +97,34 @@ function scangamepads() {
     }
   }
 }
-//Names the button with the proper designation based on notation selection
-function nameButtons(i) {
-  switch (window.btnNoteTypeIn) {
+function createButtonIcon(ind, lbl) {
+  var e = document.createElement("span");
+  e.className = "button";
+  //e.id = "b" + i;
+  e.innerHTML = nameButton(ind);
+  // e.innerHTML = i;
+  return e;
+}
+function createAxisMeter(ind) {
+  var l = document.createElement("h3");
+  l.textContent = nameAxis(ind);
+  var e = document.createElement("meter");
+  e.className = "axis";
+  //e.id = "a" + i;
+  e.setAttribute("min", "-1");
+  e.setAttribute("max", "1");
+  e.setAttribute("value", "0");
+  e.innerHTML = ind;
+  l.appendChild(e);
+  // return e;
+  return l;
+}
+/**
+ * Names the button with the proper designation based on button notation selection
+ * @param {*} i - the button id number
+ */
+function nameButton(i) {
+  switch (Number.parseInt(window.dispBtnNoteType)) {
 
     case ButtonNotationType.StreetFighter:
       switch (i) {
@@ -121,7 +141,31 @@ function nameButtons(i) {
       return i;
   }
 }
-
+/**
+ * Names the axis based on the axis id number
+ * @param {*} i - the axis id number
+ */
+function nameAxis(i) {
+  switch (i) {
+    case 0:
+      return "LS X";
+    case 1:
+      return "LS Y";
+    case 2:
+      return "RS X";
+    case 3:
+      return "RS Y";
+    case 4:
+      return "LT";
+    case 5:
+      return "RT";
+    default:
+      break;
+  }
+}
+/**
+ * EVENTS
+ */
 if (haveEvents) {
   window.addEventListener("gamepadconnected", connecthandler);
   window.addEventListener("gamepaddisconnected", disconnecthandler);
