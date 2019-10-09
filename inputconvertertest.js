@@ -28,15 +28,6 @@ splitChar = ' ';
 
 testInputs = ["236HP", "F D DF + MP", "lp, lp, Forward, lk, hp"];
 
-
-// var ButtonLayout = {
-//     btn0: 0,
-//     btn1: 1,
-//     btn2: 2,
-//     btn3: 3,
-//     btn4: 4,
-//     btn5: 5
-// };
 function ButtonLayout(zero, one, two, three, four, five) {
     this.btn0 = zero;
     this.btn1 = one;
@@ -62,7 +53,11 @@ mvmtInElmt.addEventListener("change", function () { convMvmtNoteTypeIn = ChangeE
 mvmtOutElmt.addEventListener("change", function () { convMvmtNoteTypeOut = ChangeEnum(mvmtOutElmt, mvmtOutElmt.value); });
 btnInElmt.addEventListener("change", function () { convBtnNoteTypeIn = ChangeEnum(btnInElmt, btnInElmt.value); });
 btnOutElmt.addEventListener("change", function () { convBtnNoteTypeOut = ChangeEnum(btnOutElmt, btnOutElmt.value); });
-dispBtnElmt.addEventListener("change", function () { dispBtnNoteType = ChangeEnum(dispBtnElmt, dispBtnElmt.value); });
+
+dispBtnElmt.addEventListener("change", function () { 
+    dispBtnNoteType = ChangeDisplayEnum(dispBtnElmt, dispBtnElmt.value); 
+    
+});
 
 
 function initConverter() {
@@ -158,8 +153,13 @@ function ChangeEnum(e, v) {
 }
 function ChangeDisplayEnum(e, v) {
     e.value = v;
-    for(var cntrllr in window.controllers)
+    dispBtnNoteType = v;
+    for(var i = 0; i < window.btnsArr.length; i++)
     {
-
+        var btnIcons = window.btnsArr[i];
+        for (var j = 0; j < btnIcons.childNodes.length; j++)
+        {
+            btnIcons.childNodes[j].innerHTML = nameButton(j);
+        }
     }
 }

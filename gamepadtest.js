@@ -5,6 +5,8 @@ var rAF = window.mozRequestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
   window.requestAnimationFrame;
 
+var btnsArr = [];
+
 function connecthandler(e) {
   addgamepad(e.gamepad);
 }
@@ -23,11 +25,12 @@ function addgamepad(gamepad) {
   for (var i = 0; i < gamepad.buttons.length; i++) { btns.appendChild(createButtonIcon(i)); }
   //Append Buttons to div
   div.appendChild(btns);
+  btnsArr.push(btns);
 
   // Create Axis Meters
   var axes = document.createElement("div"); axes.className = "axes";
   for (i = 0; i < gamepad.axes.length; i++) { axes.appendChild(createAxisMeter(i)); }
-  
+
   //Append Meters to div
   div.appendChild(axes);
 
@@ -136,6 +139,55 @@ function nameButton(i) {
         case 5: return "HK";
         default:
           return i;
+      }
+
+    case ButtonNotationType.GuiltyGear:
+      {
+        switch (i) {
+          case 0: return "P";
+          case 1: return "D";
+          case 2: return "K";
+          case 3: return "S";
+          case 4: return "HS";
+          case 5: return "SP";
+        }
+        break;
+      }
+    case ButtonNotationType.SoulCalibur:
+      {
+        switch (i) {
+          case 0: return "G";
+          case 1: return "K";
+          case 2: return "A";
+          case 3: return "B";
+          case 4: return "N/A";
+          case 5: return "N/A";
+        }
+        break;
+      }
+    case ButtonNotationType.Tekken:
+      {
+        switch (i) {
+          case 0: return "LK";
+          case 1: return "RK";
+          case 2: return "LP";
+          case 3: return "RP";
+          case 4: return "N/A";
+          case 5: return "N/A";
+        }
+        break;
+      }
+    case ButtonNotationType.SNK:
+      {
+        switch (i) {
+          case 0: return "B";
+          case 1: return "D";
+          case 2: return "A";
+          case 3: return "C";
+          case 4: return "N/A";
+          case 5: return "N/A";
+        }
+        break;
       }
     default:
       return i;
