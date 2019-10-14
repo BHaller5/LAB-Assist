@@ -18,7 +18,8 @@ JavaScript's gamepad API. I'll soon be customizing some of the HTML and
 styling to better fit the project. The actual gamepadtest.js code is pretty 
 simple, and doesn't really need too much explaination, despite its length.
 
-## Future Tasks
-Future tasks that I will be working on:
-* Swapping .buttons out with buttons that match the layout of the controller
-* Maybe changing the visual representation of the joysticks
+## General Guidelines
+These are things to keep in mind while we are programming:
+* We will start by implementing our interface with ONE type of controller first. With Jeff's recommendation, we will start with an arcade stick as our first controller. This will help to make our code less confusing and packed.
+* We will start by implementing our program for ONE game right away. I think either Street Fighter, Tekken, or Mortal Kombat would be a good game to begin with, as they are relatively simple.
+* Stick to basics. Implement everything on a basic level at first, and slowly start to build more functionality into each component that gets created. Building up from a solid base means that there will be well commented code for the basic implementation of a component. As things get more complex, the comments from the basic implementation will help everyone else get accustomed to how a component works. 
