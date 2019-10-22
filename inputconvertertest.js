@@ -44,6 +44,7 @@ var convInpStr = document.getElementById("convInpStr");
 convInpStr.addEventListener("change", changeInput);
 $(document).ready($("#convBtn").click(convertInput));
 $(document).ready(initConverter);
+
 var mvmtInElmt = document.getElementById("mvmtIn");
 var mvmtOutElmt = document.getElementById("mvmtOut");
 var btnInElmt = document.getElementById("btnIn");
@@ -54,10 +55,7 @@ mvmtOutElmt.addEventListener("change", function () { convMvmtNoteTypeOut = Chang
 btnInElmt.addEventListener("change", function () { convBtnNoteTypeIn = ChangeEnum(btnInElmt, btnInElmt.value); });
 btnOutElmt.addEventListener("change", function () { convBtnNoteTypeOut = ChangeEnum(btnOutElmt, btnOutElmt.value); });
 
-dispBtnElmt.addEventListener("change", function () { 
-    dispBtnNoteType = ChangeDisplayEnum(dispBtnElmt, dispBtnElmt.value); 
-    
-});
+dispBtnElmt.addEventListener("change", function () { dispBtnNoteType = ChangeDisplayEnum(dispBtnElmt, dispBtnElmt.value); });
 
 
 function initConverter() {
@@ -108,7 +106,6 @@ function ProcessToken(tok) {
     switch (convMvmtNoteTypeIn) {
         case MovementNotationType.Numeric:
             tok1 = tok.split(/[A-Za-z]/)[0];
-            // tok2 = tok.split(/[A-Za-z]/);
             break;
         case MovementNotationType.Directional:
             break;
@@ -154,9 +151,9 @@ function ChangeEnum(e, v) {
 function ChangeDisplayEnum(e, v) {
     e.value = v;
     dispBtnNoteType = v;
-    for(var i = 0; i < window.btnsArr.length; i++)
+    for(var i = 0; i < window.padHTMLShells.length; i++)
     {
-        var btnIcons = window.btnsArr[i];
+        var btnIcons = window.padHTMLShells[i].padButtons;
         for (var j = 0; j < btnIcons.childNodes.length; j++)
         {
             btnIcons.childNodes[j].innerHTML = nameButton(j);

@@ -5,14 +5,15 @@ var rAF = window.mozRequestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
   window.requestAnimationFrame;
 
-var btnsArr = [];
 
+var padHTMLShells = [];
 function connecthandler(e) {
   addgamepad(e.gamepad);
 }
 function addgamepad(gamepad) {
   controllers[gamepad.index] = gamepad;
   var div = document.createElement("div");
+  var shell = new gamepadHTMLShell();
   div.setAttribute("id", "controller" + gamepad.index);
 
   //Create controller id title
@@ -25,7 +26,6 @@ function addgamepad(gamepad) {
   for (var i = 0; i < gamepad.buttons.length; i++) { btns.appendChild(createButtonIcon(i)); }
   //Append Buttons to div
   div.appendChild(btns);
-  btnsArr.push(btns);
 
   // Create Axis Meters
   var axes = document.createElement("div"); axes.className = "axes";
@@ -34,6 +34,7 @@ function addgamepad(gamepad) {
   //Append Meters to div
   div.appendChild(axes);
 
+  padHTMLShells.push(new gamepadHTMLShell(title,  axes, btns));
   //Hide start message
   document.getElementById("start").style.display = "none";
   document.body.appendChild(div);
@@ -137,8 +138,7 @@ function nameButton(i) {
         case 3: return "MP";
         case 4: return "HP";
         case 5: return "HK";
-        default:
-          return i;
+        default: return i;
       }
 
     case ButtonNotationType.GuiltyGear:
@@ -150,8 +150,8 @@ function nameButton(i) {
           case 3: return "S";
           case 4: return "HS";
           case 5: return "SP";
+          default: return i;
         }
-        break;
       }
     case ButtonNotationType.SoulCalibur:
       {
@@ -160,10 +160,8 @@ function nameButton(i) {
           case 1: return "K";
           case 2: return "A";
           case 3: return "B";
-          case 4: return "N/A";
-          case 5: return "N/A";
+          default: return i;
         }
-        break;
       }
     case ButtonNotationType.Tekken:
       {
@@ -172,10 +170,8 @@ function nameButton(i) {
           case 1: return "RK";
           case 2: return "LP";
           case 3: return "RP";
-          case 4: return "N/A";
-          case 5: return "N/A";
+          default: return i;
         }
-        break;
       }
     case ButtonNotationType.SNK:
       {
@@ -184,10 +180,8 @@ function nameButton(i) {
           case 1: return "D";
           case 2: return "A";
           case 3: return "C";
-          case 4: return "N/A";
-          case 5: return "N/A";
+          default: return i;
         }
-        break;
       }
     default:
       return i;
@@ -199,18 +193,12 @@ function nameButton(i) {
  */
 function nameAxis(i) {
   switch (i) {
-    case 0:
-      return "LS X";
-    case 1:
-      return "LS Y";
-    case 2:
-      return "RS X";
-    case 3:
-      return "RS Y";
-    case 4:
-      return "LT";
-    case 5:
-      return "RT";
+    case 0: return "LS X";
+    case 1: return "LS Y";
+    case 2: return "RS X";
+    case 3: return "RS Y";
+    case 4: return "LT";
+    case 5: return "RT";
     default:
       break;
   }
@@ -226,4 +214,11 @@ if (haveEvents) {
   window.addEventListener("webkitgamepaddisconnected", disconnecthandler);
 } else {
   setInterval(scangamepads, 500);
+}
+
+function gamepadHTMLShell(title, axes, buttons)  {
+  this.padTitle = title;
+  this.padAxes = axes;
+  this.padButtons = buttons;
+
 }
