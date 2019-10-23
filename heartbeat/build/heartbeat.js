@@ -693,7 +693,7 @@ if (typeof module !== "undefined" && module !== null) {
 
         // import
         loadLoop, //defined in util.js
-        findItem, //defined in util.js
+         findItem, //defined in util.js
         storeItem, //defined in util.js
         deleteItem, //defined in util.js
         typeString, //defined in util.js
