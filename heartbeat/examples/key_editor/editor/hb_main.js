@@ -19,6 +19,8 @@ window.onload = function () {
         btnFirst = document.getElementById('first'),
         btnAddPart = document.getElementById('add_part'),
         //#endregion
+        txtKeyRangeStart = document.getElementById('key-range-start'),
+        txtKeyRangeEnd = document.getElementById('key-range-end'),
 
         sliderScale = document.getElementById('scale-slider'),
         labelSliderScale = document.getElementById('scale-label'),
@@ -333,9 +335,12 @@ window.onload = function () {
             events.push(sequencer.createMidiEvent(ticks, sequencer.NOTE_OFF, pitch, 0));
             ticks += noteLength;
         }
+        ticks = keyEditor.getTicksAt(keyEditor.getPlayheadX());
+        // ticks = getRandom(0, song.durationTicks / 2, true);
 
-        ticks = getRandom(0, song.durationTicks / 2, true);
         part.addEvents(events);
+        if (!track)
+            track = song.tracks[0];
         track.addPartAt(part, ['ticks', ticks]);
         song.update();
     }
@@ -358,34 +363,29 @@ window.onload = function () {
     }
     //#endregion
 
-    function getRandom(min, max, round) {
-        var r = Math.random() * (max - min) + min;
-        if (round === true) {
-            return Math.round(r);
-        } else {
-            return r;
-        }
+    function keyRangeStartChanged(e) {
     }
-
-
-
-
 
     function init() {
         var c = divControls.getBoundingClientRect().height,
             w = window.innerWidth,
             h = window.innerHeight - c,
             events, event, part, timeEvents = [],
-            songName =
+
+            /**
+             * Uncomment one to test different tracks, will add listing function soon
+             */
+            midiFileName =
+                // 'Blank Test';
                 'Fantasie Impromptu';
-        // 'Blank Test';
         // 'Queen - Bohemian Rhapsody';
         // 'minute_waltz';
+        // 'Thing';
 
         divEditor.style.width = w + 'px';
         divEditor.style.height = h + 'px';
 
-        var midiFile = sequencer.getMidiFile(songName);
+        var midiFile = sequencer.getMidiFile(midiFileName);
         if (!midiFile) {
             midiFile = sequencer.getMidiFiles()[0];
         }
@@ -397,6 +397,7 @@ window.onload = function () {
                 // method 1: create a song directly from the midi file, this way the midi file is treated as a config object
                 midiFile.useMetronome = true;
                 song = sequencer.createSong(midiFile);
+                track = song.track;
                 break;
 
             case 2:
@@ -409,12 +410,14 @@ window.onload = function () {
                     tracks: midiFile.tracks,
                     useMetronome: true
                 });
+                track = song.track;
                 break;
             case 3:
 
                 song = sequencer.createSong(midiFile, false);
         }
-
+        // part = sequencer.createPart();
+        // part.addEvents(events);
         /**
          * 
          * 
@@ -438,7 +441,10 @@ window.onload = function () {
         song.addEventListener('stop', function () {
             btnPlay.value = 'play';
         });
-
+        /**
+         * 
+         * This is where KeyEditor is Made!!!
+         */
         keyEditor = sequencer.createKeyEditor(song, {
             keyListener: true,
             viewportHeight: h,
@@ -447,6 +453,8 @@ window.onload = function () {
             highestNote: 108,
             barsPerPage: 16
         });
+        txtKeyRangeStart.value = keyEditor.lowestNote;
+        txtKeyRangeEnd.value = keyEditor.highestNote;
 
 
         sliderScale.min = 1;// minimal 1 bar per page
@@ -454,7 +462,16 @@ window.onload = function () {
         sliderScale.value = 16;// currently set to 16 bars per page
         sliderScale.step = 1;
 
-
+        txtKeyRangeStart.addEventListener('change', function (e) {
+            // keyEditor.setNoteRange(txtKeyRangeStart.value, keyEditor.highestNote);
+            keyEditor.lowestNote = txtKeyRangeStart.value;
+            draw();
+        });
+        txtKeyRangeEnd.addEventListener('change', function (e) {
+            // keyEditor.setNoteRange(keyEditor.lowestNote, txtKeyRangeEnd.value);
+            keyEditor.highestNote = txtKeyRangeEnd.value;
+            draw();
+        });
         // listen for scale and draw events, a scale event is fired when you change the number of bars per page
         // a draw event is fired when you change the size of the viewport by resizing the browser window
         keyEditor.addEventListener('scale draw', function () {
@@ -584,35 +601,57 @@ window.onload = function () {
     }
 
     enableGUI(false);
-    this.AddAssetsToSequencer(sequencer);
+    this.addAssetsToSequencer(sequencer);
     sequencer.addAssetPack({ url: '../../../assets/examples/asset_pack_basic.json' }, init);
     // divMidiFileList = doFileSelect();
-    // if (divMidiFileList) {
-    //     divMidiFileList.addEventListener('mouseover', this.doFileSelect);
+    // // if (divMidiFileList) {
+    //     divMidiFileList.addEventListener('mouseover', this.updateFileSelect(divMidiFileList));
     // }
 
 };
-function doFileSelect() {
-    if (!midiFileList) {
-        midiFileList = document.createElement('select');
-        midiFileList.id = 'midi-select';
-    }
-    var files = sequencer.getMidiFiles();
-    files.forEach(e => {
-        var option = document.createElement('option');
-        option.value = e.name;
-        option.innerHTML = e.name;
-        midiFileList.append(option);
-    });
-    var listDiv = document.getElementById('midi-file-select');
-    listDiv.append(midiFileList);
-    return listDiv;
-    // }
-    // return null;
-}
-function AddAssetsToSequencer(seq) {
+
+// function doFileSelect() {
+//     if (!midiFileList) {
+//         midiFileList = document.createElement('select');
+//         midiFileList.id = 'midi-select';
+//     }
+//     var files = sequencer.getMidiFiles();
+//     files.forEach(e => {
+//         var option = document.createElement('option');
+//         option.value = e.name;
+//         option.innerHTML = e.name;
+//         midiFileList.append(option);
+//     });
+//     var divList = document.getElementById('midi-file-select');
+//     divList.append(midiFileList);
+//     return divList;
+//     // }
+//     // return null;
+// }
+// function updateFileSelect(divList) {
+//     var files = sequencer.getMidiFiles();
+//     files.forEach(e => {
+//         var option = document.createElement('option');
+//         option.value = e.name;
+//         option.innerHTML = e.name;
+//         midiFileList.append(option);
+//     });
+// }
+
+
+function addAssetsToSequencer(seq) {
     seq.addMidiFile({ url: '../../../assets/midi/minute_waltz.mid' });
     seq.addMidiFile({ url: '../../../assets/midi/chpn_op66.mid' });
     seq.addMidiFile({ url: '../../../assets/midi/Queen - Bohemian Rhapsody.mid' });
     seq.addMidiFile({ url: '../../../assets/midi/test.mid' });
 }
+//#region [ rgba(255, 255, 255, 0.1) ] Random Functions
+function getRandom(min, max, round) {
+    var r = Math.random() * (max - min) + min;
+    if (round === true) {
+        return Math.round(r);
+    } else {
+        return r;
+    }
+}
+    //#endregion

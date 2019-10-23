@@ -18,12 +18,20 @@
             "url": "http://localhost:8080",
             "file": "${workspaceFolder}/index.html",
             "runtimeArgs": [
-                "--allow-file-access-from-files", 
-                "--allow-sandbox-debugging", 
+                "--allow-file-access-from-files",
+                "--allow-sandbox-debugging",
                 // "--disable-features=AutoplayIgnoreWebAudio"
             ],
             "webRoot": "${workspaceFolder}"
             // "webRoot": "D:/_LocalProjects/LAB-Assist"
         }
-    ]
+    ],
+    "coloredRegions": {
+            "namedColors": {
+                "red30": "rgba(255, 0, 0, 0.3)",
+                "wht": "rgba(255, 255, 255, 1)"
+            }
+    }
+
+
 }

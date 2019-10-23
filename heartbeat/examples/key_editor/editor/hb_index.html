@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8'>
     <title>heartbeat</title>
@@ -8,11 +9,12 @@
     <script src="../../../build/heartbeat.js"></script>
     <script src="hb_main.js"></script>
 
-
+    <div id="midi-file-select">Midi File List</div>
     <link rel="stylesheet" type="text/css" href="../../css/reset.css">
     <!-- <link rel="stylesheet" type="text/css" href="../../css/examples.css"> -->
     <link rel="stylesheet" type="text/css" href="hb_main.css">
 </head>
+
 <body>
     <div id='editor'>
         <div id='score'>
@@ -35,7 +37,8 @@
 
         <div class='pipe'>|</div>
         <div id='time-seconds'></div>
-
+        <input type="text" id='key-range-start'>Key Start</input>
+        <input type="text" id='key-range-end'>Key End</input>
         <div class='pipe'>|</div>
         <div id='mouse-x'>0</div>
 
@@ -51,7 +54,7 @@
 
         <div class='pipe'>|</div>
         <div>
-            <input type='range' id='scale-slider'/>
+            <input type='range' id='scale-slider' />
             <label for='scale-slider' id='scale-label'>#bars 16</label>
         </div>
         <span>snap:</span>
@@ -71,8 +74,8 @@
             <option value='off'>off</option>
         </select>
         <input type='button' id='add_part' value='add part' />
-    <div id="midi-file-select">Midi File List</div>
 
     </div>
 </body>
+
 </html>
