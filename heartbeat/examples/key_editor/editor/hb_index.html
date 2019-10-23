@@ -4,18 +4,6 @@
     <meta charset='utf-8'>
     <title>heartbeat</title>
     <meta name='viewport' content='width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no'>
-    <script>
-      // you can remove this in your own code
-    //   if(window.location.hostname === 'abudaan.github.io'){
-    //     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    //     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    //     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    //     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    //     ga('create', 'UA-5081547-9', 'auto');
-    //     ga('send', 'pageview');
-    //   }
-    </script>
 
     <script src="../../../build/heartbeat.js"></script>
     <script src="hb_main.js"></script>
@@ -66,6 +54,23 @@
             <input type='range' id='scale-slider'/>
             <label for='scale-slider' id='scale-label'>#bars 16</label>
         </div>
+        <span>snap:</span>
+        <select id="snap">
+            <!--
+            <option value='bar'>bar</option>
+            <option value='beat' >beat</option>
+            -->
+            <option value='1'>whole</option>
+            <option value='2'>half</option>
+            <option value='4'>quarter</option>
+            <option value='8'>8th</option>
+            <option value='16'>16th</option>
+            <option value='32'>32th</option>
+            <option value='64'>64th</option>
+            <option value='tick'>tick</option>
+            <option value='off'>off</option>
+        </select>
+        <input type='button' id='add_part' value='add part' />
     <div id="midi-file-select">Midi File List</div>
 
     </div>

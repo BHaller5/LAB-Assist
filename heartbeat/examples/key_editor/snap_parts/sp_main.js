@@ -45,18 +45,18 @@ window.onload = function () {
         track;
 
 
-    function enableGUI(flag){
+    function enableGUI(flag) {
         var elements = document.querySelectorAll('input, select'),
             i, element, maxi = elements.length;
 
-        for(i = 0; i < maxi; i++){
+        for (i = 0; i < maxi; i++) {
             element = elements[i];
             element.disabled = !flag;
         }
     }
 
 
-    function render(){
+    function render() {
         var snapshot = keyEditor.getSnapshot('key-editor'),
             divNote, divPart;
 
@@ -66,72 +66,72 @@ window.onload = function () {
         divBarsBeats.innerHTML = song.barsAsString;
         divSeconds.innerHTML = song.timeAsString;
 
-        snapshot.notes.removed.forEach(function(note){
+        snapshot.notes.removed.forEach(function (note) {
             allNoteDivs[note.id].removeEventListener('mousedown', noteMouseDown);
             divNotes.removeChild(document.getElementById(note.id));
         });
 
-        snapshot.notes.new.forEach(function(note){
+        snapshot.notes.new.forEach(function (note) {
             drawNote(note);
         });
 
-        snapshot.notes.recorded.forEach(function(note){
+        snapshot.notes.recorded.forEach(function (note) {
             drawNote(note);
         });
 
-        snapshot.notes.recording.forEach(function(note){
+        snapshot.notes.recording.forEach(function (note) {
             updateElement(allNoteDivs[note.id], note.bbox);
         });
 
         // events.changed, notes.changed, parts.changed contain elements that have been moved or transposed
-        snapshot.notes.changed.forEach(function(note){
+        snapshot.notes.changed.forEach(function (note) {
             updateElement(allNoteDivs[note.id], note.bbox, 0);
         });
 
 
         // stateChanged arrays contain elements that have become active or inactive
-        snapshot.notes.stateChanged.forEach(function(note){
+        snapshot.notes.stateChanged.forEach(function (note) {
             divNote = document.getElementById(note.id);
-            if(note.part.mute === false){
-                if(note.mute !== true){
-                    if(note.active){
+            if (note.part.mute === false) {
+                if (note.mute !== true) {
+                    if (note.active) {
                         divNote.className = 'note note-active';
-                    }else if(note.active === false){
+                    } else if (note.active === false) {
                         divNote.className = 'note';
                     }
                 }
             }
         });
 
-        snapshot.parts.removed.forEach(function(part){
+        snapshot.parts.removed.forEach(function (part) {
             allPartDivs[part.id].removeEventListener('mousedown', partMouseDown);
             divParts.removeChild(document.getElementById(part.id));
         });
 
-        snapshot.parts.new.forEach(function(part){
+        snapshot.parts.new.forEach(function (part) {
             drawPart(part);
         });
 
         // events.changed, notes.changed, parts.changed contain elements that have been moved or transposed
-        snapshot.parts.changed.forEach(function(part){
+        snapshot.parts.changed.forEach(function (part) {
             updateElement(allPartDivs[part.id], part.bbox, 0);
         });
 
 
         // stateChanged arrays contain elements that have become active or inactive
-        snapshot.parts.stateChanged.forEach(function(part){
+        snapshot.parts.stateChanged.forEach(function (part) {
             divPart = document.getElementById(part.id);
-            if(part.mute !== true){
-                if(part.active){
+            if (part.mute !== true) {
+                if (part.active) {
                     divPart.className = 'part part-active';
-                }else if(part.active === false){
+                } else if (part.active === false) {
                     divPart.className = 'part';
                 }
             }
         });
 
 
-        if(snapshot.hasNewBars){
+        if (snapshot.hasNewBars) {
             // set the new width of the score
             divScore.style.width = snapshot.newWidth + 'px';
 
@@ -140,13 +140,13 @@ window.onload = function () {
 
             // reset the index of the iterator because we're starting from 0 again
             keyEditor.horizontalLine.reset();
-            while(keyEditor.horizontalLine.hasNext('chromatic')){
+            while (keyEditor.horizontalLine.hasNext('chromatic')) {
                 drawHorizontalLine(keyEditor.horizontalLine.next('chromatic'));
             }
 
             // the index of the vertical line iterator has already been set to the right index by the key editor
             // so only the extra barlines will be drawn
-            while(keyEditor.verticalLine.hasNext('sixteenth')){
+            while (keyEditor.verticalLine.hasNext('sixteenth')) {
                 drawVerticalLine(keyEditor.verticalLine.next('sixteenth'));
             }
         }
@@ -155,7 +155,7 @@ window.onload = function () {
     }
 
 
-    function resize(){
+    function resize() {
         var c = divControls.getBoundingClientRect().height,
             w = window.innerWidth,
             h = window.innerHeight - c;
@@ -167,7 +167,7 @@ window.onload = function () {
     }
 
 
-    function draw(){
+    function draw() {
 
         allNotes = {};
         allParts = {};
@@ -189,31 +189,31 @@ window.onload = function () {
 
         divScore.style.width = keyEditor.width + 'px';
 
-        while(keyEditor.horizontalLine.hasNext('chromatic')){
+        while (keyEditor.horizontalLine.hasNext('chromatic')) {
             drawHorizontalLine(keyEditor.horizontalLine.next('chromatic'));
         }
 
-        while(keyEditor.verticalLine.hasNext('sixteenth')){
+        while (keyEditor.verticalLine.hasNext('sixteenth')) {
             drawVerticalLine(keyEditor.verticalLine.next('sixteenth'));
         }
 
-        while(keyEditor.noteIterator.hasNext()){
+        while (keyEditor.noteIterator.hasNext()) {
             drawNote(keyEditor.noteIterator.next());
         }
 
-        while(keyEditor.partIterator.hasNext()){
+        while (keyEditor.partIterator.hasNext()) {
             drawPart(keyEditor.partIterator.next());
         }
     }
 
 
-    function drawHorizontalLine(data){
+    function drawHorizontalLine(data) {
         var divLine = document.createElement('div'),
             pitchHeight = keyEditor.pitchHeight;
 
-        if(data.note.blackKey === true){
+        if (data.note.blackKey === true) {
             divLine.className = 'pitch-line black-key';
-        }else{
+        } else {
             divLine.className = 'pitch-line';
         }
         divLine.id = data.note.fullName;
@@ -224,7 +224,7 @@ window.onload = function () {
     }
 
 
-    function drawVerticalLine(data){
+    function drawVerticalLine(data) {
         var type = data.type,
             divLine = document.createElement('div');
 
@@ -234,7 +234,7 @@ window.onload = function () {
         divLine.style.width = '5px'; // if you make the with too small, the background image of sometimes disappears
         divLine.x = data.x;
 
-        switch(type){
+        switch (type) {
             case 'bar':
                 divBarLines.appendChild(divLine);
                 break;
@@ -248,7 +248,7 @@ window.onload = function () {
     }
 
 
-    function drawNote(note){
+    function drawNote(note) {
         var bbox = note.bbox,
             divNote = document.createElement('div');
 
@@ -265,13 +265,13 @@ window.onload = function () {
     }
 
 
-    function drawPart(part){
+    function drawPart(part) {
         var bbox = part.bbox,
             divPart = document.createElement('div');
 
         divPart.id = part.id;
         divPart.className = 'part';
-        divPart.style.left = bbox.left  + 'px';
+        divPart.style.left = bbox.left + 'px';
         divPart.style.top = bbox.top + 'px';
         divPart.style.width = bbox.width - 1 + 'px';
         divPart.style.height = bbox.height - 1 + 'px';
@@ -284,7 +284,7 @@ window.onload = function () {
     }
 
 
-    function updateElement(element, bbox){
+    function updateElement(element, bbox) {
         element.style.left = bbox.x + 'px';
         element.style.top = bbox.y + 'px';
         element.style.width = bbox.width + 'px';
@@ -292,51 +292,51 @@ window.onload = function () {
     }
 
 
-    function partMouseDown(e){
+    function partMouseDown(e) {
         var part = allParts[e.target.id];
-        if(e.ctrlKey){
+        if (e.ctrlKey) {
             keyEditor.removePart(part);
-        }else{
+        } else {
             keyEditor.startMovePart(part, e.pageX, e.pageY);
             document.addEventListener('mouseup', partMouseUp, false);
         }
     }
 
 
-    function partMouseUp(){
+    function partMouseUp() {
         keyEditor.stopMovePart();
         document.removeEventListener('mouseup', partMouseUp);
     }
 
 
-    function noteMouseDown(e){
+    function noteMouseDown(e) {
         var note = allNotes[e.target.id];
-        if(e.ctrlKey){
+        if (e.ctrlKey) {
             keyEditor.removeNote(note);
-        }else{
+        } else {
             keyEditor.startMoveNote(note, e.pageX, e.pageY);
             document.addEventListener('mouseup', noteMouseUp, false);
         }
     }
 
 
-    function noteMouseUp(){
+    function noteMouseUp() {
         keyEditor.stopMoveNote();
         document.removeEventListener('mouseup', noteMouseUp);
     }
 
 
-    function getRandom(min, max, round){
+    function getRandom(min, max, round) {
         var r = Math.random() * (max - min) + min;
-        if(round === true){
+        if (round === true) {
             return Math.round(r);
-        }else{
+        } else {
             return r;
         }
     }
 
 
-    function addPart(){
+    function addPart() {
         var i,
             startPositions = [0, 60, 90, 120, 180],
             ticks = 0, //startPositions[getRandom(0, 4, true)],
@@ -345,10 +345,10 @@ window.onload = function () {
             basePitch = getRandom(keyEditor.lowestNote + spread, keyEditor.highestNote - spread, true),
             part = sequencer.createPart(),
             events = [],
-            noteLength = song.ppq/2,
+            noteLength = song.ppq / 2,
             pitch, velocity;
 
-        for(i = 0; i < numNotes; i++){
+        for (i = 0; i < numNotes; i++) {
             pitch = basePitch + getRandom(-spread, spread, true);
             velocity = getRandom(50, 127, true);
             events.push(sequencer.createMidiEvent(ticks, sequencer.NOTE_ON, pitch, velocity));
@@ -357,14 +357,14 @@ window.onload = function () {
             ticks += noteLength;
         }
 
-        ticks = getRandom(0, song.durationTicks/2, true);
+        ticks = getRandom(0, song.durationTicks / 2, true);
         part.addEvents(events);
         track.addPartAt(part, ['ticks', ticks]);
         song.update();
     }
 
 
-    function init(){
+    function init() {
         var c = divControls.getBoundingClientRect().height,
             w = window.innerWidth,
             h = window.innerHeight - c,
@@ -386,15 +386,15 @@ window.onload = function () {
             useMetronome: true
         });
 
-        song.addEventListener('play',function(){
+        song.addEventListener('play', function () {
             btnPlay.value = 'pause';
         });
 
-        song.addEventListener('pause',function(){
+        song.addEventListener('pause', function () {
             btnPlay.value = 'play';
         });
 
-        song.addEventListener('stop',function(){
+        song.addEventListener('stop', function () {
             btnPlay.value = 'play';
         });
 
@@ -410,22 +410,22 @@ window.onload = function () {
 
         // listen for scale and draw events, a scale event is fired when you change the number of bars per page
         // a draw event is fired when you change the size of the viewport by resizing the browser window
-        keyEditor.addEventListener('scale draw', function(){
+        keyEditor.addEventListener('scale draw', function () {
             draw();
         });
 
 
         // listen for scroll events, the score automatically follows the song positon during playback: as soon as
         // the playhead moves off the right side of the screen, a scroll event is fired
-        keyEditor.addEventListener('scroll', function(data){
+        keyEditor.addEventListener('scroll', function (data) {
             divEditor.scrollLeft = data.x;
         });
 
 
         // you can set the playhead at any position by clicking on the score
-        divScore.addEventListener('mousedown', function(e){
+        divScore.addEventListener('mousedown', function (e) {
             var className = e.target.className;
-            if(className.indexOf('part') !== -1 || className.indexOf('note') !== -1){
+            if (className.indexOf('part') !== -1 || className.indexOf('note') !== -1) {
                 return;
             }
             keyEditor.setPlayheadToX(e.pageX);
@@ -436,12 +436,12 @@ window.onload = function () {
 
         // if you scroll the score by hand you must inform the key editor. necessary for calculating
         // the song position by x coordinate and the pitch by y coordinate
-        divEditor.addEventListener('scroll',function(){
-            keyEditor.updateScroll(divEditor.scrollLeft,divEditor.scrollTop);
-        },false);
+        divEditor.addEventListener('scroll', function () {
+            keyEditor.updateScroll(divEditor.scrollLeft, divEditor.scrollTop);
+        }, false);
 
 
-        divScore.addEventListener('mousemove',function(e){
+        divScore.addEventListener('mousemove', function (e) {
             e.preventDefault();
             var x = e.pageX,
                 y = e.pageY,
@@ -454,43 +454,43 @@ window.onload = function () {
             divMouseY.innerHTML = 'y ' + keyEditor.getPitchAt(y).number;
 
             // move part or note if selected
-            if(part !== undefined){
+            if (part !== undefined) {
                 keyEditor.movePart(x, y);
             }
-            if(note !== undefined){
+            if (note !== undefined) {
                 keyEditor.moveNote(x, y);
             }
-        },false);
+        }, false);
 
-        selectSnap.addEventListener('change', function(){
+        selectSnap.addEventListener('change', function () {
             keyEditor.setSnapX(selectSnap.options[selectSnap.selectedIndex].value);
         }, false);
 
-        btnPlay.addEventListener('click',function(){
+        btnPlay.addEventListener('click', function () {
             song.pause();
         });
 
-        btnStop.addEventListener('click',function(){
+        btnStop.addEventListener('click', function () {
             song.stop();
         });
 
-        btnNext.addEventListener('click',function(){
+        btnNext.addEventListener('click', function () {
             keyEditor.scroll('>');
         });
 
-        btnPrev.addEventListener('click',function(){
+        btnPrev.addEventListener('click', function () {
             keyEditor.scroll('<');
         });
 
-        btnFirst.addEventListener('click',function(){
+        btnFirst.addEventListener('click', function () {
             keyEditor.scroll('<<');
         });
 
-        btnLast.addEventListener('click',function(){
+        btnLast.addEventListener('click', function () {
             keyEditor.scroll('>>');
         });
 
-        btnAddPart.addEventListener('click',function(){
+        btnAddPart.addEventListener('click', function () {
             addPart();
         });
 

@@ -10,12 +10,15 @@ window.onload = function () {
         alert = window.alert,
         requestAnimationFrame = window.requestAnimationFrame,
 
+        //#region Button Elements
         btnPlay = document.getElementById('play'),
         btnStop = document.getElementById('stop'),
         btnPrev = document.getElementById('prev'),
         btnNext = document.getElementById('next'),
         btnLast = document.getElementById('last'),
         btnFirst = document.getElementById('first'),
+        btnAddPart = document.getElementById('add_part'),
+        //#endregion
 
         sliderScale = document.getElementById('scale-slider'),
         labelSliderScale = document.getElementById('scale-label'),
@@ -34,13 +37,18 @@ window.onload = function () {
         divSixteenthLines = document.getElementById('sub-tick-lines'),
         divPitchLines = document.getElementById('pitch-lines'),
         divNotes = document.getElementById('notes'),
+        divParts = document.getElementById('parts'),
         divPlayhead = document.getElementById('playhead'),
 
-        allNotes, // stores references to all midi notes
-        allNoteDivs, // stores references to all divs that represent a midi note
+        allNotes = {}, // stores references to all midi notes
+        allParts = {}, // stores references to all midi parts
+        allNoteDivs = {}, // stores references to all divs that represent a midi note
+        allPartDivs = {}, // stores references to all divs that represent a midi part
+        selectSnap = document.getElementById('snap'),
 
         keyEditor,
         song,
+        track,
         divMidiFileList,
         midiFileList,
         audCntxt;
@@ -57,7 +65,7 @@ window.onload = function () {
 
     function render() {
         var snapshot = keyEditor.getSnapshot('key-editor'),
-            divNote;
+            divNote, divPart;
 
         divPlayhead.style.left = keyEditor.getPlayheadX() - 10 + 'px';
         divPageNumbers.innerHTML = 'page ' + keyEditor.currentPage + ' of ' + keyEditor.numPages;
@@ -92,14 +100,42 @@ window.onload = function () {
         snapshot.notes.stateChanged.forEach(function (note) {
             divNote = document.getElementById(note.id);
             if (note.part.mute === false) {
-                if (note.active) {
-                    divNote.className = 'note note-active';
-                } else if (note.active === false) {
-                    divNote.className = 'note';
+                if (note.mute !== true) {
+                    if (note.active) {
+                        divNote.className = 'note note-active';
+                    } else if (note.active === false) {
+                        divNote.className = 'note';
+                    }
                 }
             }
         });
 
+        snapshot.parts.removed.forEach(function (part) {
+            allPartDivs[part.id].removeEventListener('mousedown', partMouseDown);
+            divParts.removeChild(document.getElementById(part.id));
+        });
+
+        snapshot.parts.new.forEach(function (part) {
+            drawPart(part);
+        });
+
+        // events.changed, notes.changed, parts.changed contain elements that have been moved or transposed
+        snapshot.parts.changed.forEach(function (part) {
+            updateElement(allPartDivs[part.id], part.bbox, 0);
+        });
+
+
+        // stateChanged arrays contain elements that have become active or inactive
+        snapshot.parts.stateChanged.forEach(function (part) {
+            divPart = document.getElementById(part.id);
+            if (part.mute !== true) {
+                if (part.active) {
+                    divPart.className = 'part part-active';
+                } else if (part.active === false) {
+                    divPart.className = 'part';
+                }
+            }
+        });
 
         if (snapshot.hasNewBars) {
             // set the new width of the score
@@ -136,12 +172,14 @@ window.onload = function () {
         divEditor.style.height = h + 'px';
     }
 
-
+    //#region [rgba(60, 60, 90 ,0.3)] Draw Functions
     function draw() {
 
         allNotes = {};
+        allParts = {};
         allNoteDivs = {};
-
+        allPartDivs = {};
+        divParts.innerHTML = '';
         divNotes.innerHTML = '';
         divPitchLines.innerHTML = '';
         divBarLines.innerHTML = '';
@@ -151,6 +189,7 @@ window.onload = function () {
         keyEditor.horizontalLine.reset();
         keyEditor.verticalLine.reset();
         keyEditor.noteIterator.reset();
+        keyEditor.partIterator.reset();
 
         divScore.style.width = keyEditor.width + 'px';
 
@@ -164,6 +203,10 @@ window.onload = function () {
 
         while (keyEditor.noteIterator.hasNext()) {
             drawNote(keyEditor.noteIterator.next());
+        }
+
+        while (keyEditor.partIterator.hasNext()) {
+            drawPart(keyEditor.partIterator.next());
         }
     }
 
@@ -226,6 +269,26 @@ window.onload = function () {
     }
 
 
+    function drawPart(part) {
+        var bbox = part.bbox,
+            divPart = document.createElement('div');
+
+        divPart.id = part.id;
+        divPart.className = 'part';
+        divPart.style.left = bbox.left + 'px';
+        divPart.style.top = bbox.top + 'px';
+        divPart.style.width = bbox.width - 1 + 'px';
+        divPart.style.height = bbox.height - 1 + 'px';
+
+        // store part and div
+        allParts[part.id] = part;
+        allPartDivs[part.id] = divPart;
+        divPart.addEventListener('mousedown', partMouseDown, false);
+        divParts.appendChild(divPart);
+    }
+
+    //#endregion
+
     function updateElement(element, bbox) {
         element.style.left = bbox.x + 'px';
         element.style.top = bbox.y + 'px';
@@ -233,7 +296,52 @@ window.onload = function () {
         element.style.height = bbox.height + 'px';
     }
 
+    //#region [rgba(0,100,0,0.2)] Part Event Functions
+    function partMouseDown(e) {
+        var part = allParts[e.target.id];
+        if (e.ctrlKey) {
+            keyEditor.removePart(part);
+        } else {
+            keyEditor.startMovePart(part, e.pageX, e.pageY);
+            document.addEventListener('mouseup', partMouseUp, false);
+        }
+    }
 
+
+    function partMouseUp() {
+        keyEditor.stopMovePart();
+        document.removeEventListener('mouseup', partMouseUp);
+    }
+
+    function addPart() {
+        var i,
+            startPositions = [0, 60, 90, 120, 180],
+            ticks = 0, //startPositions[getRandom(0, 4, true)],
+            numNotes = getRandom(4, 8, true),
+            spread = 5,
+            basePitch = getRandom(keyEditor.lowestNote + spread, keyEditor.highestNote - spread, true),
+            part = sequencer.createPart(),
+            events = [],
+            noteLength = song.ppq / 2,
+            pitch, velocity;
+
+        for (i = 0; i < numNotes; i++) {
+            pitch = basePitch + getRandom(-spread, spread, true);
+            velocity = getRandom(50, 127, true);
+            events.push(sequencer.createMidiEvent(ticks, sequencer.NOTE_ON, pitch, velocity));
+            ticks += noteLength;
+            events.push(sequencer.createMidiEvent(ticks, sequencer.NOTE_OFF, pitch, 0));
+            ticks += noteLength;
+        }
+
+        ticks = getRandom(0, song.durationTicks / 2, true);
+        part.addEvents(events);
+        track.addPartAt(part, ['ticks', ticks]);
+        song.update();
+    }
+    //#endregion
+
+    //#region [rgba(0,0,100,0.2)] Note Event Functions
     function noteMouseDown(e) {
         var note = allNotes[e.target.id];
         if (e.ctrlKey) {
@@ -244,34 +352,45 @@ window.onload = function () {
         }
     }
 
-
     function noteMouseUp() {
         keyEditor.stopMoveNote();
         document.removeEventListener('mouseup', noteMouseUp);
     }
+    //#endregion
+
+    function getRandom(min, max, round) {
+        var r = Math.random() * (max - min) + min;
+        if (round === true) {
+            return Math.round(r);
+        } else {
+            return r;
+        }
+    }
+
+
+
 
 
     function init() {
         var c = divControls.getBoundingClientRect().height,
             w = window.innerWidth,
-            h = window.innerHeight - c;
+            h = window.innerHeight - c,
+            events, event, part, timeEvents = [],
+            songName =
+                'Fantasie Impromptu';
+        // 'Blank Test';
+        // 'Queen - Bohemian Rhapsody';
+        // 'minute_waltz';
 
         divEditor.style.width = w + 'px';
         divEditor.style.height = h + 'px';
-        /**
-         * 
-         * 
-         */
-        // var midiFile = sequencer.getMidiFile('chpn_op66');
-        // var midiFile = sequencer.getMidiFile('Queen - Bohemian Rhapsody');
-        var midiFile = sequencer.getMidiFile('test');
-        /**
-         * 
-         */
-        // var midiFile = sequencer.getMidiFile('Sonata Facile');
+
+        var midiFile = sequencer.getMidiFile(songName);
         if (!midiFile) {
             midiFile = sequencer.getMidiFiles()[0];
         }
+        // timeEvents.push(sequencer.createMidiEvent(0, sequencer.TIME_SIGNATURE, 6, 8));
+        // timeEvents.push(sequencer.createMidiEvent(960 * 3, sequencer.TIME_SIGNATURE, 4, 4));
         switch (testMethod) {
 
             case 1:
@@ -401,6 +520,11 @@ window.onload = function () {
             }
         }, false);
 
+        selectSnap.addEventListener('change', function () {
+            keyEditor.setSnapX(selectSnap.options[selectSnap.selectedIndex].value);
+        }, false);
+
+        //#region [rgba(100, 100, 50, 0.3)] Playback Button Event Listeners
         btnPlay.addEventListener('click', function () {
             song.pause();
         });
@@ -424,6 +548,10 @@ window.onload = function () {
         btnLast.addEventListener('click', function () {
             keyEditor.scroll('>>');
         });
+        //#endregion
+        btnAddPart.addEventListener('click', function () {
+            addPart();
+        });
 
         sliderScale.addEventListener('change', function (e) {
             var bpp = parseFloat(e.target.value);
@@ -431,7 +559,6 @@ window.onload = function () {
             keyEditor.setBarsPerPage(bpp);
         }, false);
 
-        window.addEventListener('resize', resize, false);
         window.addEventListener('mouseover', function (e) {
             if (!window.AudioContext) {
 
@@ -442,17 +569,22 @@ window.onload = function () {
                 audCntxt.resume();
             }
         });
+        window.addEventListener('resize', resize, false);
+
         enableGUI(true);
 
+        selectSnap.selectedIndex = 3;
+        event = document.createEvent('HTMLEvents');
+        event.initEvent('change', false, false);
+        selectSnap.dispatchEvent(event);
+
         draw();
+        // addPart();
         render();
     }
 
     enableGUI(false);
-    sequencer.addMidiFile({ url: '../../../assets/midi/minute_waltz.mid' });
-    sequencer.addMidiFile({ url: '../../../assets/midi/chpn_op66.mid' });
-    sequencer.addMidiFile({ url: '../../../assets/midi/Queen - Bohemian Rhapsody.mid' });
-    sequencer.addMidiFile({ url: '../../../assets/midi/test.mid' });
+    this.AddAssetsToSequencer(sequencer);
     sequencer.addAssetPack({ url: '../../../assets/examples/asset_pack_basic.json' }, init);
     // divMidiFileList = doFileSelect();
     // if (divMidiFileList) {
@@ -477,4 +609,10 @@ function doFileSelect() {
     return listDiv;
     // }
     // return null;
+}
+function AddAssetsToSequencer(seq) {
+    seq.addMidiFile({ url: '../../../assets/midi/minute_waltz.mid' });
+    seq.addMidiFile({ url: '../../../assets/midi/chpn_op66.mid' });
+    seq.addMidiFile({ url: '../../../assets/midi/Queen - Bohemian Rhapsody.mid' });
+    seq.addMidiFile({ url: '../../../assets/midi/test.mid' });
 }
