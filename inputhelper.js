@@ -131,12 +131,8 @@ function ProcessToken(tok) {
         ProcessCharacter(tok[t]);
     }
 }
-function ProcessMovementCharacter(ch) {
-
-}
-function ProcessButtonCharacter(ch) {
-
-}
+function ProcessMovementCharacter(ch) {}
+function ProcessButtonCharacter(ch) {}
 function ProcessCharacter(ch) {
     console.log("       Proccing Character: " + ch);
 }
@@ -144,7 +140,6 @@ function ProcessCharacter(ch) {
 
 function ChangeEnum(e, v) {
     e.value = v;
-    // console.log("Changed enum " + e.toString() + " to " + v.toString());
     console.log("Changed enum " + e.toString() + " to " + e.value.toString());
     return v;
 }
