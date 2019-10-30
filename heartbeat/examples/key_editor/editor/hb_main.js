@@ -4,7 +4,7 @@
 window.onload = function () {
 
     'use strict';
-    edHTML = EditorHTML();
+    edtrHTML = EditorHTML();
 
     enableGUI(false);
     addAssetsToSequencer(sequencer);
@@ -17,7 +17,7 @@ window.onload = function () {
 };
 function e_OnLoad() {
     'use strict';
-    edHTML = EditorHTML();
+    edtrHTML = EditorHTML();
 
     enableGUI(false);
     addAssetsToSequencer(sequencer);
@@ -82,8 +82,12 @@ var
     div_Controls,
     div_BarsBeats,
     div_Seconds,
+    mouseBarPos,
+    mousePitchPos,
     div_MouseX,
+    mouseX,
     div_MouseY,
+    mouseY,
     div_PageNumbers,
     div_Editor,
     div_Score,
@@ -107,7 +111,7 @@ var currNote,
     flattenTracksToSingleTrack = true;
 
 var testMethod = 1,
-    edHTML,
+    edtrHTML,
     midiFile,
     keyEditor,
     song,
@@ -135,10 +139,10 @@ function init() {
          * Uncomment one to test different tracks, will add listing function soon
          */
         midiFileName =
-            // 'Blank Test';
+            'Blank Test';
             // 'Fantasie Impromptu';
             // 'Queen - Bohemian Rhapsody';
-            'minute_waltz';
+            // 'minute_waltz';
     // 'Thing';
     // 'Fail';
 
@@ -184,13 +188,6 @@ function init() {
     */
     if (flattenTracksToSingleTrack)
         flattenTracks(song);
-    // song.tracks.forEach(
-    //     function (track) {
-    //         track.setInstrument('piano');
-    //         track.monitor = true;
-    //         track.setMidiInput('all');
-    //     }
-    // );
 
     //#region Context Menu Events
     initContextEvents();
@@ -237,7 +234,6 @@ function init() {
     selectSnap.dispatchEvent(event);
 
     draw();
-    // addPart();
     render();
 }
 function initContextEvents() {
@@ -250,13 +246,15 @@ function initInputEvents() {
      * Text
      */
     txt_KeyRangeStart.addEventListener('change', function (e) {
-        // keyEditor.setNoteRange(txt_KeyRangeStart.value, keyEditor.highestNote);
-        keyEditor.lowestNote = txt_KeyRangeStart.value;
+        keyEditor.setNoteRange(txt_KeyRangeStart.value, keyEditor.highestNote);
+        // keyEditor.lowestNote = txt_KeyRangeStart.value;
+        song.update();
         draw();
     });
     txt_KeyRangeEnd.addEventListener('change', function (e) {
-        // keyEditor.setNoteRange(keyEditor.lowestNote, txt_KeyRangeEnd.value);
-        keyEditor.highestNote = txt_KeyRangeEnd.value;
+        keyEditor.setNoteRange(keyEditor.lowestNote, txt_KeyRangeEnd.value);
+        // keyEditor.highestNote = txt_KeyRangeEnd.value;
+        song.update();
         draw();
     });
     // listen for scale and draw events, a scale event is fired when you change the number of bars per page
@@ -271,28 +269,57 @@ function initInputEvents() {
         div_Editor.scrollLeft = data.x;
     });
     /**
-     * START - Add note when double clicked
+     * EXPERIMENTAL - Add note when double clicked
      */
     div_Score.addEventListener('dblclick', function (e) {
         var className = e.target.className;
-        if (
-            className.indexOf('part') !== -1 ||
-            className.indexOf('note') !== -1
-        ) {
+        //if double clicking a note
+        if (className.indexOf('note') !== -1) {
+            currNote = allNotes[e.target.id];
+            currPart = currNote.part;
             return;
         }
-
+        //if double clicking a blank section of a part
+        else if (className.indexOf('part') !== -1) {
+            currPart = allParts[e.target.id];
+            currPart.addEvents(addNewNoteAtMouse());
+            song.update();
+            return;
+        }
+        //if double clicking grid but current part is selected
+        else if(currPart)
+        {
+            currPart.addEvents(addNewNoteAtMouse());
+            song.update();
+            return;
+        }
+        //if double clicking empty grid space
+        else{
+            currPart = sequencer.createPart();
+            currPart.addEvents(addNewNoteAtMouse());
+            song.tracks[0].addPartAt(currPart, ['ticks', keyEditor.getTicksAt(mouseX)]);
+            song.update();
+            return;
+        }
     });
     // you can set the playhead at any position by clicking on the score
+    /**
+     * OR - if element clicked on is a part or note, it sets the current note / part to that element
+     */
     div_Score.addEventListener('mousedown', function (e) {
         var className = e.target.className;
-        if (
-            className.indexOf('part') !== -1 ||
-            className.indexOf('note') !== -1
-        ) {
+        if (className.indexOf('note') !== -1) {
+            currNote = allNotes[e.target.id];
+            currPart = currNote.part;
             return;
         }
-        keyEditor.setPlayheadToX(e.pageX);
+        else if (className.indexOf('part') !== -1) {
+            currPart = allParts[e.target.id];
+            return;
+        }
+        else {
+            keyEditor.setPlayheadToX(e.pageX);
+        }
         // you could also use:
         //song.setPlayhead('ticks', keyEditor.xToTicks(e.pageX));
     });
@@ -326,8 +353,12 @@ function initInputEvents() {
                 note = keyEditor.selectedNote;
 
             // show the song position and pitch of the current mouse position; handy for debugging
-            div_MouseX.innerHTML = 'x ' + pos.barsAsString;
-            div_MouseY.innerHTML = 'y ' + keyEditor.getPitchAt(y).number;
+            mouseX = x;
+            mouseY = y;
+            mouseBarPos = pos.barsAsString;
+            div_MouseX.innerHTML = 'x ' + mouseBarPos;
+            mousePitchPos =  keyEditor.getPitchAt(y).number;
+            div_MouseY.innerHTML = 'y ' + mousePitchPos;
 
             // move part or note if selected
             if (part !== undefined) {
@@ -367,11 +398,11 @@ function initInputEvents() {
         false
     );
     /**
-     * Shortcuts
+     * Keyboard Shortcuts
      */
     window.addEventListener("keydown", function (e) {
         if (e.keyCode == 32) {
-            console.log('Hit Space!');
+            // console.log('Hit Space!');
             song.pause();
         }
     });
@@ -385,16 +416,7 @@ function setSliderValues(elmt, val, min, max, step) {
     elmt.step = step;
     elmt.value = val;
 }
-function resize() {
-    var c = div_Controls.getBoundingClientRect().height,
-        w = window.innerWidth,
-        h = window.innerHeight - c;
 
-    // tell the key editor that the viewport has canged, necessary for auto scroll during playback
-    keyEditor.setViewport(w, h);
-    div_Editor.style.width = w + 'px';
-    div_Editor.style.height = h + 'px';
-}
 //#region [rgba(60, 60, 120 ,0.15)] Draw Functions
 function draw() {
     //Initialize all Grid HTML elements to blank
@@ -416,21 +438,13 @@ function draw() {
 
     div_Score.style.width = keyEditor.width + 'px';
 
-    while (keyEditor.horizontalLine.hasNext('chromatic')) {
-        drawHorizontalLine(keyEditor.horizontalLine.next('chromatic'));
-    }
+    while (keyEditor.horizontalLine.hasNext('chromatic')) { drawHorizontalLine(keyEditor.horizontalLine.next('chromatic')); }
 
-    while (keyEditor.verticalLine.hasNext('sixteenth')) {
-        drawVerticalLine(keyEditor.verticalLine.next('sixteenth'));
-    }
+    while (keyEditor.verticalLine.hasNext('sixteenth')) { drawVerticalLine(keyEditor.verticalLine.next('sixteenth')); }
 
-    while (keyEditor.noteIterator.hasNext()) {
-        drawNote(keyEditor.noteIterator.next());
-    }
+    while (keyEditor.noteIterator.hasNext()) { drawNote(keyEditor.noteIterator.next()); }
 
-    while (keyEditor.partIterator.hasNext()) {
-        drawPart(keyEditor.partIterator.next());
-    }
+    while (keyEditor.partIterator.hasNext()) { drawPart(keyEditor.partIterator.next()); }
 }
 
 function drawHorizontalLine(data) {
@@ -530,7 +544,7 @@ function render() {
 
     // events.changed, notes.changed, parts.changed contain elements that have been moved or transposed
     snapshot.parts.changed.forEach(function (part) {
-        updateElement(divsAllParts[part.id], part.bbox, 0);
+        updateElement(divs_AllParts[part.id], part.bbox, 0);
     });
 
     // stateChanged arrays contain elements that have become active or inactive
@@ -547,22 +561,18 @@ function render() {
 
     if (snapshot.hasNewBars) {
         // set the new width of the score
-        divScore.style.width = snapshot.newWidth + 'px';
+        div_Score.style.width = snapshot.newWidth + 'px';
 
         // clear the horizontal lines because the lines have to be drawn longer
-        divPitchLines.innerHTML = '';
+        div_PitchLines.innerHTML = '';
 
         // reset the index of the iterator because we're starting from 0 again
         keyEditor.horizontalLine.reset();
-        while (keyEditor.horizontalLine.hasNext('chromatic')) {
-            drawHorizontalLine(keyEditor.horizontalLine.next('chromatic'));
-        }
+        while (keyEditor.horizontalLine.hasNext('chromatic')) { drawHorizontalLine(keyEditor.horizontalLine.next('chromatic')); }
 
         // the index of the vertical line iterator has already been set to the right index by the key editor
         // so only the extra barlines will be drawn
-        while (keyEditor.verticalLine.hasNext('sixteenth')) {
-            drawVerticalLine(keyEditor.verticalLine.next('sixteenth'));
-        }
+        while (keyEditor.verticalLine.hasNext('sixteenth')) { drawVerticalLine(keyEditor.verticalLine.next('sixteenth')); }
     }
     requestAnimationFrame(render);
 }
@@ -605,6 +615,16 @@ function updateElement(element, bbox) {
     element.style.top = bbox.y + 'px';
     element.style.width = bbox.width + 'px';
     element.style.height = bbox.height + 'px';
+}
+function resize() {
+    var c = div_Controls.getBoundingClientRect().height,
+        w = window.innerWidth,
+        h = window.innerHeight - c;
+
+    // tell the key editor that the viewport has canged, necessary for auto scroll during playback
+    keyEditor.setViewport(w, h);
+    div_Editor.style.width = w + 'px';
+    div_Editor.style.height = h + 'px';
 }
 //#endregion
 function enableGUI(flag) {
@@ -719,6 +739,25 @@ function addRandomPartAtPlayhead() {
     song.update();
 }
 //#endregion
+/**
+ * EXPERIMENTAL
+ */
+function addNewNoteAtMouse() {
+    var pitch = keyEditor.getPitchAt(mouseY),
+        velocity = 127,
+        events = [],
+        noteLength = song.ppq / 2;
+        ticks = keyEditor.getTicksAt(mouseX);
+
+    events.push(
+        sequencer.createMidiEvent(ticks, sequencer.NOTE_ON, pitch, velocity)
+    );
+    ticks += noteLength;    
+    events.push(
+        sequencer.createMidiEvent(ticks, sequencer.NOTE_OFF, pitch, 0)
+    );
+    return events;
+}
 function flattenTracks(song) {
     song.tracks.forEach(
         function (track) {
