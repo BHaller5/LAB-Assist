@@ -7,6 +7,7 @@
     <meta name='viewport' content='width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no'>
 
     <script src="../../../build/heartbeat.js"></script>
+    <!-- <script src="hb_main.js" type="module"></script> -->
     <script src="hb_main.js"></script>
 
     <div id="midi-file-select">Midi File List</div>
@@ -56,23 +57,25 @@
             <input type='range' id='scale-slider' />
             <label for='scale-slider' id='scale-label'>#bars 16</label>
         </div>
-        <span>snap:</span>
-        <select id="snap">
-            <!--
+        <!-- <span>snap:</span> -->
+        <span>snap:
+            <select id="snap">
+                <!--
             <option value='bar'>bar</option>
             <option value='beat' >beat</option>
             -->
-            <option value='1'>whole</option>
-            <option value='2'>half</option>
-            <option value='4'>quarter</option>
-            <option value='8'>8th</option>
-            <option value='16'>16th</option>
-            <option value='32'>32th</option>
-            <option value='64'>64th</option>
-            <option value='tick'>tick</option>
-            <option value='off'>off</option>
-        </select>
-        <input type='button' id='add_part' value='add part' />
+                <option value='1'>whole</option>
+                <option value='2'>half</option>
+                <option value='4'>quarter</option>
+                <option value='8'>8th</option>
+                <option value='16'>16th</option>
+                <option value='32'>32th</option>
+                <option value='64'>64th</option>
+                <option value='tick'>tick</option>
+                <option value='off'>off</option>
+            </select>
+        </span>
+        <input type='button' id='add-part' value='add part' />
 
     </div>
 </body>

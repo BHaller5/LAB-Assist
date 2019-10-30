@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html >
+<html>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 
 <head>
-  <script src="gamepadtest.js"></script>
+  <script src="gamepadtest.js" type="module"></script>
+  <script src="../../../build/heartbeat.js"></script>
   <a href="heartbeat/examples/key_editor/editor/hb_index.html">To Test Grid Main</a>
+
 </head>
 
 <body>
   <link rel="stylesheet" href="index.css">
   <h2 id="start">Press a button on your controller to start</h2>
-  <div id="noteTypesCont"> 
+  <div id="noteTypesCont">
     <div id="noteDiv">Notation Settings
       <h4 class="noteHeader">Movement Input Notation</h4>
       <select name="noteEnum" id="mvmtIn">
@@ -69,7 +71,78 @@
     </div>
   </div>
   <script src="inputhelper.js"></script>
-  <!-- <script src="heartbeat.js"></script> -->
+
+  <!-- ADDED HEARTBEAT ELEMENTS -->
+  <!--  -->
+  <!--  -->
+  <!-- <script src="hb_main.js" type="module"></script> -->
+  <script src="hb_main.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../css/reset.css">
+  <link rel="stylesheet" type="text/css" href="hb_main.css">
+  <div id="editor-grid">
+    <div id='editor'>
+      <div id='score'>
+        <div id='pitch-lines'></div>
+        <div id='bar-lines'></div>
+        <div id='tick-lines'></div>
+        <div id='sub-tick-lines'></div>
+        <div id='notes'></div>
+        <div id='parts'></div>
+        <div id='playhead'>
+          <div id='playhead-line'></div>
+        </div>
+      </div>
+    </div>
+    <div id='controls'>
+      <input type='button' id='play' value='play' />
+      <input type='button' id='stop' value='stop' />
+
+      <div id='time-bars-beats'></div>
+
+      <div class='pipe'>|</div>
+      <div id='time-seconds'></div>
+      <input type="text" id='key-range-start'>Key Start</input>
+      <input type="text" id='key-range-end'>Key End</input>
+      <div class='pipe'>|</div>
+      <div id='mouse-x'>0</div>
+
+      <div class='pipe'>|</div>
+      <div id='mouse-y'>0</div>
+
+      <div class='pipe'>|</div>
+      <input type='button' id='first' value='<<' />
+      <input type='button' id='prev' value='<' />
+      <div id='page-numbers'>page 0 of 0</div>
+      <input type='button' id='next' value='>' />
+      <input type='button' id='last' value='>>' />
+
+      <div class='pipe'>|</div>
+      <div>
+        <input type='range' id='scale-slider' />
+        <label for='scale-slider' id='scale-label'>#bars 16</label>
+      </div>
+      <span>snap:</span>
+      <select id="snap">
+        <!--
+            <option value='bar'>bar</option>
+            <option value='beat' >beat</option>
+            -->
+        <option value='1'>whole</option>
+        <option value='2'>half</option>
+        <option value='4'>quarter</option>
+        <option value='8'>8th</option>
+        <option value='16'>16th</option>
+        <option value='32'>32th</option>
+        <option value='64'>64th</option>
+        <option value='tick'>tick</option>
+        <option value='off'>off</option>
+      </select>
+      <input type='button' id='add-part' value='add part' />
+
+    </div>
+  </div>
+  <!--  -->
+  <!--  -->
 </body>
 
 </html>

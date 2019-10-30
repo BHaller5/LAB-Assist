@@ -1,3 +1,5 @@
+// import { e_OnLoad } from "./heartbeat/examples/key_editor/editor/hb_main";
+
 var haveEvents = 'GamepadEvent' in window;
 var haveWebkitEvents = 'WebKitGamepadEvent' in window;
 var controllers = {};
@@ -13,7 +15,7 @@ function connecthandler(e) {
 function addgamepad(gamepad) {
   controllers[gamepad.index] = gamepad;
   var div = document.createElement("div");
-  var shell = new gamepadHTMLShell();
+  // var shell = new gamepadHTMLShell();
   div.setAttribute("id", "controller" + gamepad.index);
 
   //Create controller id title
@@ -34,7 +36,7 @@ function addgamepad(gamepad) {
   //Append Meters to div
   div.appendChild(axes);
 
-  padHTMLShells.push(new gamepadHTMLShell(title,  axes, btns));
+  padHTMLShells.push(new gamepadHTMLShell(title, axes, btns));
   //Hide start message
   document.getElementById("start").style.display = "none";
   document.body.appendChild(div);
@@ -216,9 +218,13 @@ if (haveEvents) {
   setInterval(scangamepads, 500);
 }
 
-function gamepadHTMLShell(title, axes, buttons)  {
+window.onload = function () {
+  console.log("onload in gamepadtest reached!");
+  // e_OnLoad();  
+}
+function gamepadHTMLShell(title, axes, buttons) {
   this.padTitle = title;
   this.padAxes = axes;
   this.padButtons = buttons;
-
 }
+
