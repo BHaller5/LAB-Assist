@@ -13,8 +13,8 @@ I will continue to update the readme as the project grows, so if you
 see any new additions in the project, it will most likely be documented here.
 
 ## Basic Gamepad Tester
-This gamepad tester was originally gotten from MDN to get used to using
-JavaScript's gamepad API. I'll soon be customizing some of the HTML and
+This gamepad tester was originally taken from MDN to get used to using
+JavaScript's gamepad API. We'll soon be customizing some of the HTML and
 styling to better fit the project. The actual gamepadtest.js code is pretty 
 simple, and doesn't really need too much explaination, despite its length.
 
