@@ -59,6 +59,8 @@ function EditorHTML() {
         div_Parts = document.getElementById('parts'),
         div_Playhead = document.getElementById('playhead'),
         selectSnap = document.getElementById('snap'),
+        div_currNote = document.getElementById('dbg-curr-note'),
+        div_currPart = document.getElementById('dbg-curr-part'),
         divs_AllNotes = {}, // stores references to all divs that represent a midi note
         divs_AllParts = {}, // stores references to all divs that represent a midi part
         allNotes = {}, // stores references to all midi notes
@@ -109,8 +111,10 @@ var
     gridHoriMargin,
     gridVertMargin;
 
-var currNote,
-    currPart,
+var div_currNote,
+    currNote = null,
+    div_currPart,
+    currPart = null,
     flattenTracksToSingleTrack = true;
 
 var testMethod = 1,
@@ -135,9 +139,7 @@ function init() {
     var c = div_Controls.getBoundingClientRect().height,
         w = window.innerWidth - (gridHoriMargin * 2),
         h = window.innerHeight - (c * 2),
-        events,
         event,
-        timeEvents = [],
         /**
          * Uncomment one to test different tracks, will add listing function soon
          */
@@ -186,16 +188,12 @@ function init() {
     instruments = sequencer.getInstruments();
     //|------------------------------------------------------------------------------------------|
 
+    
     /**
     * Compacts all song tracks onto single track, set to monitor, and set instrument to piano
     */
-    if (flattenTracksToSingleTrack)
-        flattenTracks(song);
-
-    //#region Context Menu Events
-    initContextEvents();
-    //#endregion
-
+   if (flattenTracksToSingleTrack)
+   flattenTracks(song);
     /**
      *
      * This is where KeyEditor is Made!!!
@@ -204,18 +202,31 @@ function init() {
         keyListener: true,
         viewportHeight: h,
         viewportWidth: w,
-        lowestNote: 21,
-        highestNote: 108,
-        barsPerPage: 16
+        lowestNote: 40, //default: 21
+        highestNote: 80, //default: 108
+        barsPerPage: 16 //default: 16
     });
     //set editor element values to editor defaults
     setElementValue(txt_KeyRangeStart, keyEditor.lowestNote);
     setElementValue(txt_KeyRangeEnd, keyEditor.highestNote);
     setSliderValues(sldr_barsPerPage, keyEditor.barsPerPage, 1, 32, 1);
 
+    initContextEvents();
     initInputEvents();
+    initWindowEvents();
 
-    /**
+    enableGUI(true);
+
+    selectSnap.selectedIndex = 3;
+    event = document.createEvent('HTMLEvents');
+    event.initEvent('change', false, false);
+    selectSnap.dispatchEvent(event);
+
+    draw();
+    render();
+}
+function initWindowEvents() {
+        /**
      * Check for working Audio Context, and if not, create one and resume it when user mouses over window
      */
     window.addEventListener('mouseover', function (e) {
@@ -228,37 +239,29 @@ function init() {
         }
     });
     window.addEventListener('resize', resize, false);
-
-    enableGUI(true);
-
-    selectSnap.selectedIndex = 3;
-    event = document.createEvent('HTMLEvents');
-    event.initEvent('change', false, false);
-    selectSnap.dispatchEvent(event);
-
-    draw();
-    render();
 }
 function initContextEvents() {
     song.addEventListener('play', function () { setElementValue(btn_Play, 'pause'); });
     song.addEventListener('pause', function () { setElementValue(btn_Play, 'play'); });
     song.addEventListener('stop', function () { setElementValue(btn_Play, 'play'); });
+    div_Editor.addEventListener('mousedown', function () {
+            div_currPart.innerHTML = 'Sel Part: ' + (currPart !== null ? currPart.id : 'none');
+            div_currNote.innerHTML = 'Sel Note: ' + (currNote !== null ? currNote.id : 'none');
+    });
 }
 function initInputEvents() {
     /**
      * Text
      */
     txt_KeyRangeStart.addEventListener('change', function (e) {
-        keyEditor.setNoteRange(txt_KeyRangeStart.value, keyEditor.highestNote);
+        song.setPitchRange(txt_KeyRangeStart.value, keyEditor.highestNote);
         // keyEditor.lowestNote = txt_KeyRangeStart.value;
         song.update();
-        draw();
     });
     txt_KeyRangeEnd.addEventListener('change', function (e) {
-        keyEditor.setNoteRange(keyEditor.lowestNote, txt_KeyRangeEnd.value);
+        song.setPitchRange(keyEditor.lowestNote, txt_KeyRangeEnd.value);
         // keyEditor.highestNote = txt_KeyRangeEnd.value;
         song.update();
-        draw();
     });
     // listen for scale and draw events, a scale event is fired when you change the number of bars per page
     // a draw event is fired when you change the size of the viewport by resizing the browser window
@@ -268,53 +271,9 @@ function initInputEvents() {
     // the playhead moves off the right side of the screen, a scroll event is fired
     keyEditor.addEventListener('scroll', function (data) { div_Editor.scrollLeft = data.x; });
     /**
-     * EXPERIMENTAL - Add note when double clicked
+     * EXPERIMENTAL - Add notes and parts when double clicked in certain contexts
      */
-    div_Score.addEventListener('dblclick', function (e) {
-        var className = e.target.className;
-        /**
-         * if double clicking a note
-         * */
-        if (className.indexOf('note') !== -1) {
-            currNote = allNotes[e.target.id];
-            currPart = currNote.part;
-            return;
-        }
-        /** 
-         * if double clicking a blank section of a part
-         * */
-        else if (className.indexOf('part') !== -1) {
-            currPart = allParts[e.target.id];
-            currPart.addEvents(addNewNoteAtMouse());
-            song.update();
-            // draw();
-            return;
-        }
-        /**
-        * if double clicking grid but current part is selected
-        * */
-        // else if (currPart) {
-        //     currPart.addEvents(addNewNoteAtMouse());
-        //     song.update();
-        //     // draw();
-        //     return;
-        // }
-        /**
-        *if double clicking empty grid space
-        * */
-        else {
-            // currPart = sequencer.createPart();
-            // var events = createNewNoteAtMouse();
-            // currPart.addEvents(events);
-            // song.tracks[0].addPartAt(currPart, ['ticks', keyEditor.getTicksAt(mouseX)]);
-            // song.update();
-            currNote = null;
-            currPart = null;
-            // addRandomPartAtPlayhead();
-            addRandomPartAtMouse();
-            return;
-        }
-    });
+    div_Score.addEventListener('dblclick', function (e) { e_Grid_lMouDbl(e); });
     // you can set the playhead at any position by clicking on the score
     /**
      * OR - if element clicked on is a part or note, it sets the current note / part to that element
@@ -328,9 +287,12 @@ function initInputEvents() {
         }
         else if (className.indexOf('part') !== -1) {
             currPart = allParts[e.target.id];
+            currNote = null;
             return;
         }
         else {
+            currNote = null;
+            currPart = null;
             keyEditor.setPlayheadToX(e.pageX);
         }
         // you could also use:
@@ -652,8 +614,11 @@ function e_Part_lMouDown(e) {
     var part = allParts[e.target.id];
     if (e.ctrlKey) {
         keyEditor.removePart(part);
+        currPart = null;
+        currNote = null;
     } else {
-        keyEditor.startMovePart(part, e.pageX, e.pageY);
+        keyEditor.startMovePart(part, e.pageX, e.pageY); //default values
+        // keyEditor.startMovePart(part, e.clientY, e.clientY);
         document.addEventListener('mouseup', e_Part_lMouUp, false);
     }
 }
@@ -667,19 +632,59 @@ function e_Note_lMouDown(e) {
     var note = allNotes[e.target.id];
     if (e.ctrlKey) {
         keyEditor.removeNote(note);
+        currNote = null;
     } else {
-        keyEditor.startMoveNote(note, e.pageX, e.pageY);
+        keyEditor.startMoveNote(note, e.pageX, e.pageY); //default values
+        // keyEditor.startMoveNote(note, e.clientX, e.clientY);
         document.addEventListener('mouseup', e_Note_lMouUp, false);
     }
 }
 
-function e_Note_lMouUp() {
+function e_Note_lMouUp(e) {
     keyEditor.stopMoveNote();
     document.removeEventListener('mouseup', e_Note_lMouUp);
 }
-function e_Grid_lMouDown() {
+function e_Grid_lMouDown(e) {
 }
-function e_Grid_lMouUp() {
+function e_Grid_lMouUp(e) {
+
+}
+function e_Grid_lMouDbl(e){
+    var className = e.target.className;
+    /**
+     * if double clicking a note
+     * */
+    if (className.indexOf('note') !== -1) {
+        currNote = allNotes[e.target.id];
+        currPart = currNote.part;
+        return;
+    }
+    /** 
+     * if double clicking a blank section of a part
+     * */
+    else if (className.indexOf('part') !== -1) {
+        currPart = allParts[e.target.id];
+        currPart.addEvents(createNewNoteInPartAtMouse());
+        song.update();
+        return;
+    }
+    /**
+    * if double clicking grid but current part is selected
+    * */
+    else if (currPart) {
+        currPart.addEvents(addNewNoteAtMouse());
+        song.update();
+        return;
+    }
+    /**
+    *if double clicking empty grid space
+    * */
+    else {
+        currNote = null;
+        currPart = null;
+        addRandomPartAtMouse();
+        return;
+    }
 
 }
 //#endregion
@@ -695,7 +700,6 @@ function getRandom(min, max, round) {
 }
 function addRandomPartAtPlayhead() {
     var i,
-        startPositions = [0, 60, 90, 120, 180],
         tmp_ticks = 0, //startPositions[getRandom(0, 4, true)],
         numNotes = getRandom(4, 8, true),
         spread = 5,
@@ -726,7 +730,6 @@ function addRandomPartAtPlayhead() {
     track.addPartAt(part, ['ticks', tmp_ticks]);
     song.update();
 }
-//#endregion
 function addRandomPartAtMouse() {
     keyEditor.setPlayheadToX(mouseX);
     var i,
@@ -741,8 +744,8 @@ function addRandomPartAtMouse() {
         velocity;
 
     for (i = 0; i < numNotes; i++) {
-        pitch = basePitch + getRandom(-spread, spread, true);
-        // pitch = keyEditor.getPitchAt(mouseY);
+        // pitch = basePitch + getRandom(-spread, spread, true);
+        pitch = basePitch;
         velocity = getRandom(50, 127, true);
 
         events.push(sequencer.createMidiEvent(tmp_ticks, sequencer.NOTE_ON, pitch, velocity));
@@ -750,65 +753,40 @@ function addRandomPartAtMouse() {
         events.push(sequencer.createMidiEvent(tmp_ticks, sequencer.NOTE_OFF, pitch, 0));
         tmp_ticks += noteLength;
     }
-    // ticks = keyEditor.getTicksAt(keyEditor.getPlayheadX());
     tmp_ticks = keyEditor.getTicksAt(keyEditor.getPlayheadX());
-    // ticks = keyEditor.getTicksAt(mouseX);
 
     part.addEvents(events);
     if (!track) track = song.tracks[0];
     track.addPartAt(part, ['ticks', tmp_ticks]);
     song.update();
 }
+//#endregion
 
 
 
 /**
  * EXPERIMENTAL
  */
-function createNewNoteAtMouse() {
-    var pitch = keyEditor.getPitchAt(mouseY),
+function createNewNoteInPartAtMouse(tmp_part) {
+    // keyEditor.setPlayheadToX(mouseX);
+    var pitch = keyEditor.getPitchAt(mouseY).number,
         velocity = 127,
         events = [],
         noteLength = song.ppq / 2;
     // ticks = keyEditor.getTicksAt(mouseX);
-    var tmp_ticks = 0,
+    var tmp_ticks = keyEditor.getTicksAt(mouseX),
         tmp_noteOn,
         tmp_noteOff,
         tmp_note;
-    tmp_note = sequencer.createNote(pitch.number);
+    // tmp_note = sequencer.createNote(pitch.number);
     tmp_noteOn = sequencer.createMidiEvent(tmp_ticks, sequencer.NOTE_ON, pitch, velocity);
     tmp_ticks += noteLength;
     tmp_noteOff = sequencer.createMidiEvent(tmp_ticks, sequencer.NOTE_OFF, pitch, 0);
     events.push(tmp_noteOn, tmp_noteOff);
     tmp_ticks = keyEditor.getTicksAt(mouseX);
     console.log('added new note: \n ' +
-        'id: ' + pitch.number + '\n' +
         'pitch: ' + pitch.number + '\n' +
         'at ticks: ' + tmp_ticks + '\n' +
-        'velocity: ' + velocity + '\n' +
-        'length: ' + noteLength + '\n'
-    );
-
-    return events;
-}
-function addNewNoteAtMouse() {
-    var pitch = keyEditor.getPitchAt(mouseY),
-        velocity = 127,
-        events = [],
-        noteLength = song.ppq / 2;
-    ticks = keyEditor.getTicksAt(mouseX);
-
-    events.push(
-        sequencer.createMidiEvent(ticks, sequencer.NOTE_ON, pitch, velocity)
-    );
-    ticks += noteLength;
-    events.push(
-        sequencer.createMidiEvent(ticks, sequencer.NOTE_OFF, pitch, 0)
-    );
-    ticks = keyEditor.getTicksAt(mouseX);
-    console.log('added new note: \n ' +
-        'pitch: ' + pitch.number + '\n' +
-        'at ticks: ' + ticks + '\n' +
         'velocity: ' + velocity + '\n' +
         'length: ' + noteLength + '\n'
     );
